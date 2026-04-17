@@ -1,0 +1,390 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between" data-aos="fade-down">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mr-4">
+                <i class="fas fa-chart-line text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold gradient-text">Analytics Dashboard</h2>
+                <p class="text-gray-500 text-sm mt-1">Real-time insights and performance metrics</p>
+            </div>
+        </div>
+        
+        <!-- Date Filter -->
+        <div class="flex items-center space-x-4">
+            <form method="get" class="flex items-center space-x-3">
+                <select name="date_range" class="form-input min-w-[150px]" onchange="this.form.submit()">
+                    <option value="today" {% if date_range == 'today' %}selected{% endif %}>Today</option>
+                    <option value="yesterday" {% if date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
+                    <option value="this_week" {% if date_range == 'this_week' %}selected{% endif %}>This Week</option>
+                    <option value="last_week" {% if date_range == 'last_week' %}selected{% endif %}>Last Week</option>
+                    <option value="this_month" {% if date_range == 'this_month' %}selected{% endif %}>This Month</option>
+                    <option value="last_month" {% if date_range == 'last_month' %}selected{% endif %}>Last Month</option>
+                    <option value="this_year" {% if date_range == 'this_year' %}selected{% endif %}>This Year</option>
+                    <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
+                </select>
+                
+                <div id="customDateRange" class="flex items-center space-x-2 {% if date_range != 'custom' %}hidden{% endif %}">
+                    <input type="date" name="date_from" value="{{ date_from }}" class="form-input">
+                    <span class="text-gray-400">to</span>
+                    <input type="date" name="date_to" value="{{ date_to }}" class="form-input">
+                    <button type="submit" class="btn-primary">Apply</button>
+                </div>
+                    <button type="submit" class="btn-primary h-10 px-3 flex items-center justify-center" title="Refresh Data">
+                    <i class="fas fa-sync-alt"></i>&nbsp;Refresh
+                    </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-table text-white"></i>
+                </div>
+                <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                    {{ total }} Total
+                </span>
+            </div>
+            <p class="text-gray-500 text-sm mb-1">Total Transactions</p>
+            <p class="text-4xl font-bold text-gray-800">{{ total }}</p>
+            <div class="mt-3 flex items-center text-sm">
+                <i class="fas fa-chart-line text-blue-500 mr-1"></i>
+                <span class="text-gray-600">All recorded transactions</span>
+            </div>
+        </div>
+        
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-check-circle text-white"></i>
+                </div>
+                <span class="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                    {{ success_rate|floatformat:1 }}%
+                </span>
+            </div>
+            <p class="text-gray-500 text-sm mb-1">Success Rate</p>
+            <p class="text-4xl font-bold text-gray-800">{{ success_count }}</p>
+            <div class="mt-3 text-sm text-gray-500">
+                Out of {{ total }} total transactions
+            </div>
+        </div>
+        
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-money-bill-wave text-white"></i>
+                </div>
+            </div>
+            <p class="text-gray-500 text-sm mb-1">Total Revenue</p>
+            <p class="text-4xl font-bold text-gray-800">SAR {{ total_revenue|floatformat:0 }}</p>
+            <div class="mt-3 text-sm text-gray-500">
+                Avg. SAR {{ avg_value|floatformat:0 }}/transaction
+            </div>
+        </div>
+        
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="flex items-center justify-between mb-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white"></i>
+                </div>
+            </div>
+            <p class="text-gray-500 text-sm mb-1">Failed Transactions</p>
+            <p class="text-4xl font-bold text-gray-800">{{ fail_count }}</p>
+            <div class="mt-3">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-red-500 h-2 rounded-full" style="width: {{ fail_rate|floatformat:0 }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Success/Fail Pie Chart -->
+        <div class="glass-card p-6" data-aos="fade-right">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-pie text-purple-500 mr-2"></i>
+                Success vs Failure Distribution
+            </h3>
+            <canvas id="pieChart" width="400" height="250"></canvas>
+        </div>
+        
+        <!-- Daily Trend Line Chart -->
+        <div class="glass-card p-6" data-aos="fade-left">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                Daily Transaction Trend
+            </h3>
+            <canvas id="trendChart" width="400" height="250"></canvas>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Branch Performance -->
+        <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-store text-green-500 mr-2"></i>
+                Branch Performance
+            </h3>
+            <canvas id="branchChart" width="300" height="200"></canvas>
+        </div>
+        
+        <!-- Customer Type Distribution -->
+        <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-users text-blue-500 mr-2"></i>
+                Customer Types
+            </h3>
+            <canvas id="customerTypeChart" width="300" height="200"></canvas>
+        </div>
+        
+        <!-- Top Failure Reasons -->
+        <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="300">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                Top Failure Reasons
+            </h3>
+            <canvas id="reasonsChart" width="300" height="200"></canvas>
+        </div>
+    </div>
+    
+    <!-- Recent Transactions -->
+    <div class="glass-card p-6" data-aos="fade-up">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-clock text-purple-500 mr-2"></i>
+            Recent Transactions
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="border-b border-gray-200">
+                    <tr>
+                        <th class="text-left py-3">ID</th>
+                        <th class="text-left py-3">Date</th>
+                        <th class="text-left py-3">Branch</th>
+                        <th class="text-left py-3">Customer Type</th>
+                        <th class="text-left py-3">Outcome</th>
+                        <th class="text-right py-3">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trans in recent_transactions %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3">#{{ trans.id }}</td>
+                        <td class="py-3">{{ trans.created_at|date:"M d, H:i" }}</td>
+                        <td class="py-3">{{ trans.branch.code }}</td>
+                        <td class="py-3">{{ trans.customer_type.name }}</td>
+                        <td class="py-3">
+                            {% if trans.outcome == 'success' %}
+                                <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Success</span>
+                            {% else %}
+                                <span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>Failed</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 text-right font-semibold">
+                            {% if trans.price %}SAR {{ trans.price }}{% else %}-{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="py-8 text-center text-gray-400">No recent transactions</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{% url 'core:transaction_list' %}" class="block text-center mt-4 text-purple-600 hover:text-purple-700">
+            View All Transactions <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all charts
+    
+    // 1. Pie Chart - Success vs Fail
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieData = {{ pie_data|safe }};
+    
+    new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: pieData.labels,
+            datasets: [{
+                data: pieData.data,
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 13 } }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+    
+    // 2. Trend Line Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    const trendLabels = {{ trend_labels|safe }};
+    const trendData = {{ trend_data|safe }};
+    
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Transactions',
+                data: trendData,
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    
+    // 3. Branch Chart
+    const branchCtx = document.getElementById('branchChart').getContext('2d');
+    const branchLabels = {{ branch_labels|safe }};
+    const branchData = {{ branch_data|safe }};
+    
+    new Chart(branchCtx, {
+        type: 'bar',
+        data: {
+            labels: branchLabels,
+            datasets: [{
+                label: 'Transactions',
+                data: branchData,
+                backgroundColor: '#10b981',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                }
+            }
+        }
+    });
+    
+    // 4. Customer Type Chart
+    const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
+    const customerTypeLabels = {{ customer_type_labels|safe }};
+    const customerTypeData = {{ customer_type_data|safe }};
+    
+    new Chart(customerTypeCtx, {
+        type: 'pie',
+        data: {
+            labels: customerTypeLabels,
+            datasets: [{
+                data: customerTypeData,
+                backgroundColor: ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 } }
+                }
+            }
+        }
+    });
+    
+    // 5. Reasons Chart
+    const reasonsCtx = document.getElementById('reasonsChart').getContext('2d');
+    const reasonLabels = {{ reason_labels|safe }};
+    const reasonData = {{ reason_data|safe }};
+    
+    new Chart(reasonsCtx, {
+        type: 'bar',
+        data: {
+            labels: reasonLabels,
+            datasets: [{
+                label: 'Count',
+                data: reasonData,
+                backgroundColor: '#ef4444',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                }
+            }
+        }
+    });
+    
+    // Date range toggle
+    const dateRangeSelect = document.querySelector('select[name="date_range"]');
+    if (dateRangeSelect) {
+        dateRangeSelect.addEventListener('change', function() {
+            const customRange = document.getElementById('customDateRange');
+            if (this.value === 'custom') {
+                customRange.classList.remove('hidden');
+            } else {
+                customRange.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

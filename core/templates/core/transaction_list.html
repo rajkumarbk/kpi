@@ -1,0 +1,230 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Transactions List{% endblock %}
+
+{% block content %}
+<div class="space-y-6" data-aos="fade-up">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mr-4">
+                <i class="fas fa-list text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold gradient-text">All Transactions</h2>
+                <p class="text-gray-500 text-sm mt-1">View and manage all recorded transactions</p>
+            </div>
+        </div>
+        <a href="{% url 'core:add_transaction' %}" class="btn-primary">
+            <i class="fas fa-plus mr-2"></i>New Transaction
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <div class="glass-card p-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
+                <select name="branch" class="form-input">
+                    <option value="">All Branches</option>
+                    {% for branch in branches %}
+                        <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>
+                            {{ branch }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Customer Type</label>
+                <select name="customer_type" class="form-input">
+                    <option value="">All Types</option>
+                    {% for type in customer_types %}
+                        <option value="{{ type.id }}" {% if request.GET.customer_type == type.id|stringformat:"s" %}selected{% endif %}>
+                            {{ type.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Outcome</label>
+                <select name="outcome" class="form-input">
+                    <option value="">All</option>
+                    <option value="success" {% if request.GET.outcome == 'success' %}selected{% endif %}>Success</option>
+                    <option value="fail" {% if request.GET.outcome == 'fail' %}selected{% endif %}>Fail</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Date From</label>
+                <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-input">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Date To</label>
+                <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-input">
+            </div>
+            <div class="md:col-span-5 flex justify-end space-x-3">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-filter mr-2"></i>Apply Filters
+                </button>
+                <a href="{% url 'core:transaction_list' %}" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Stats Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Records</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ total_count }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-database text-purple-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Revenue</p>
+                    <p class="text-3xl font-bold text-green-600">SAR {{ total_revenue|floatformat:2 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Success Rate</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ success_rate }}%</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Avg. Transaction</p>
+                    <p class="text-3xl font-bold text-purple-600">SAR {{ avg_transaction|floatformat:2 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calculator text-purple-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transactions Table -->
+    <div class="glass-card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Branch</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Customer Type</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vehicle</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Outcome</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for transaction in transactions %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ transaction.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ transaction.created_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ transaction.branch.code }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
+                                {{ transaction.customer_type.name }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ transaction.vehicle_brand.name }} {{ transaction.vehicle_model.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if transaction.outcome == 'success' %}
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
+                                    <i class="fas fa-check-circle mr-1"></i>Success
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
+                                    <i class="fas fa-times-circle mr-1"></i>Failed
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            {% if transaction.price %}
+                                <span class="font-semibold text-green-600">SAR {{ transaction.price }}</span>
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'core:transaction_detail' transaction.id %}" 
+                               class="text-purple-600 hover:text-purple-900 mr-3">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="#" class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-400">
+                            <i class="fas fa-inbox text-4xl mb-3"></i>
+                            <p class="text-lg">No transactions found</p>
+                            <a href="{% url 'core:add_transaction' %}" class="btn-primary inline-block mt-4">
+                                Add Your First Transaction
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if transactions.has_other_pages %}
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-gray-600">
+                    Showing {{ transactions.start_index }} to {{ transactions.end_index }} of {{ total_count }} results
+                </p>
+                <div class="flex space-x-2">
+                    {% if transactions.has_previous %}
+                        <a href="?page={{ transactions.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-3 py-1 bg-purple-600 text-white rounded-md">
+                        {{ transactions.number }}
+                    </span>
+                    
+                    {% if transactions.has_next %}
+                        <a href="?page={{ transactions.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
