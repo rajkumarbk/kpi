@@ -4,227 +4,444 @@
 {% block title %}Transactions List{% endblock %}
 
 {% block content %}
-<div class="space-y-6" data-aos="fade-up">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mr-4">
-                <i class="fas fa-list text-white text-xl"></i>
-            </div>
-            <div>
-                <h2 class="text-3xl font-bold gradient-text">All Transactions</h2>
-                <p class="text-gray-500 text-sm mt-1">View and manage all recorded transactions</p>
+<style>
+    .list-page-wrap { max-width: 1200px; margin: 0 auto; }
+
+    /* Page header */
+    .page-hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .page-hero-left { display: flex; align-items: center; gap: 1rem; }
+    .page-hero-icon {
+        width: 52px; height: 52px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        border-radius: var(--radius-md);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 8px 24px var(--primary-glow);
+        flex-shrink: 0;
+    }
+    .page-hero-icon i { color: white; font-size: 1.2rem; }
+    .page-hero-text h2 { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.15rem; }
+    .page-hero-text p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
+    /* Filter card */
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+    }
+    @media (max-width: 900px) { .filter-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px)  { .filter-grid { grid-template-columns: 1fr; } }
+
+    .field-group { position: relative; }
+    .field-label {
+        display: flex; align-items: center; gap: 0.4rem;
+        font-size: 0.78rem; font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase; letter-spacing: 0.06em;
+        margin-bottom: 0.4rem;
+    }
+    .field-label i { font-size: 0.72rem; color: var(--primary); width: 13px; text-align: center; }
+    .field-icon-wrap { position: relative; }
+    .field-icon-wrap .field-icon {
+        position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+        color: var(--primary); font-size: 0.78rem; z-index: 10;
+        pointer-events: none; opacity: 0.8;
+    }
+
+    /* Filter footer */
+    .filter-footer {
+        grid-column: 1 / -1;
+        display: flex; justify-content: flex-end; align-items: center; gap: 0.6rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border);
+        margin-top: 0.25rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 400px) { .stats-grid { grid-template-columns: 1fr; } }
+
+    @media (max-width: 640px) {
+        .page-hero { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+        .page-hero .btn-primary { width: 100%; justify-content: center; }
+        .filter-grid { grid-template-columns: 1fr !important; }
+        .filter-footer { flex-direction: column; }
+        .filter-footer .btn-primary,
+        .filter-footer .btn-secondary { width: 100%; justify-content: center; }
+        .pagination-bar { flex-direction: column; gap: 0.75rem; text-align: center; }
+    }
+
+    .stat-card { padding: 1.1rem 1.25rem !important; }
+    .stat-icon {
+        width: 42px; height: 42px; border-radius: var(--radius-sm);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.2rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr {
+        background: var(--surface-2);
+        border-bottom: 1.5px solid var(--border);
+    }
+    thead th {
+        padding: 0.7rem 1rem !important;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        white-space: nowrap;
+    }
+    tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.15s ease;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--primary-subtle); }
+    tbody td { padding: 0.7rem 1rem !important; font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap; }
+    tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+    /* Badges */
+    .badge {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.25rem 0.7rem;
+        border-radius: 100px;
+        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+    }
+    .badge-type { background: var(--primary-subtle); color: var(--primary-dark); border: 1px solid rgba(108,71,255,0.15); }
+    .badge-success { background: rgba(0,201,167,0.1); color: #0a6654; border: 1px solid rgba(0,201,167,0.25); }
+    .badge-fail { background: rgba(255,71,87,0.08); color: #7a1c24; border: 1px solid rgba(255,71,87,0.2); }
+
+    /* Price */
+    .price-val { font-weight: 600; color: #0a6654; font-size: 0.875rem; }
+    .price-nil { color: var(--text-muted); }
+
+    /* Action buttons */
+    .action-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px;
+        border-radius: 8px; border: 1.5px solid var(--border);
+        background: var(--surface-2); color: var(--text-secondary);
+        font-size: 0.78rem; transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    .action-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
+    .action-btn.edit:hover { border-color: #3B82F6; color: #3B82F6; background: rgba(59,130,246,0.07); }
+
+    /* Empty state */
+    .empty-state { padding: 3.5rem 1rem; text-align: center; }
+    .empty-state i { font-size: 2.5rem; color: var(--text-muted); display: block; margin-bottom: 0.75rem; opacity: 0.5; }
+    .empty-state p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; }
+
+    /* Pagination */
+    .pagination-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.875rem 1.25rem;
+        background: var(--surface-2);
+        border-top: 1px solid var(--border);
+        font-size: 0.82rem; color: var(--text-muted);
+        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    }
+    .page-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; border-radius: 8px;
+        border: 1.5px solid var(--border); background: var(--surface);
+        color: var(--text-secondary); font-size: 0.8rem;
+        text-decoration: none; transition: all 0.2s ease;
+    }
+    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .page-btn.active { background: var(--primary); border-color: var(--primary); color: white; font-weight: 600; }
+    .page-btns { display: flex; gap: 0.3rem; }
+</style>
+
+<div class="list-page-wrap" data-aos="fade-up">
+
+    <!-- Page Header -->
+    <div class="page-hero">
+        <div class="page-hero-left">
+            <div class="page-hero-icon"><i class="fas fa-table-list"></i></div>
+            <div class="page-hero-text">
+                <h2 class="gradient-text">All Transactions</h2>
+                <p>View and manage all recorded transactions</p>
             </div>
         </div>
         <a href="{% url 'core:add_transaction' %}" class="btn-primary">
-            <i class="fas fa-plus mr-2"></i>New Transaction
+            <i class="fas fa-plus"></i>New Transaction
         </a>
     </div>
-    
+
     <!-- Filters -->
-    <div class="glass-card p-6">
-        <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
-                <select name="branch" class="form-input">
-                    <option value="">All Branches</option>
-                    {% for branch in branches %}
-                        <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>
-                            {{ branch }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Customer Type</label>
-                <select name="customer_type" class="form-input">
-                    <option value="">All Types</option>
-                    {% for type in customer_types %}
-                        <option value="{{ type.id }}" {% if request.GET.customer_type == type.id|stringformat:"s" %}selected{% endif %}>
-                            {{ type.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Outcome</label>
-                <select name="outcome" class="form-input">
-                    <option value="">All</option>
-                    <option value="success" {% if request.GET.outcome == 'success' %}selected{% endif %}>Success</option>
-                    <option value="fail" {% if request.GET.outcome == 'fail' %}selected{% endif %}>Fail</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Date From</label>
-                <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-input">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Date To</label>
-                <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-input">
-            </div>
-            <div class="md:col-span-5 flex justify-end space-x-3">
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-filter mr-2"></i>Apply Filters
-                </button>
-                <a href="{% url 'core:transaction_list' %}" class="btn-secondary">
-                    <i class="fas fa-times mr-2"></i>Clear
-                </a>
+    <div class="glass-card" style="margin-bottom:1.25rem; padding:1.5rem !important;">
+        <form method="get" id="filter-form">
+            <div class="filter-grid">
+
+                <!-- Branch -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-store-alt"></i>Branch</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-store-alt"></i>
+                        <select name="branch" class="form-input" id="filter-branch">
+                            <option value="">All Branches</option>
+                            {% for branch in branches %}
+                                <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Customer Type -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-user-tag"></i>Customer Type</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-user-tag"></i>
+                        <select name="customer_type" class="form-input" id="filter-ctype">
+                            <option value="">All Types</option>
+                            {% for type in customer_types %}
+                                <option value="{{ type.id }}" {% if request.GET.customer_type == type.id|stringformat:"s" %}selected{% endif %}>{{ type.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Outcome -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-flag-checkered"></i>Outcome</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-flag-checkered"></i>
+                        <select name="outcome" class="form-input" id="filter-outcome">
+                            <option value="">All</option>
+                            <option value="success" {% if request.GET.outcome == 'success' %}selected{% endif %}>Success</option>
+                            <option value="fail" {% if request.GET.outcome == 'fail' %}selected{% endif %}>Failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date From -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-calendar-days"></i>Date From</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-calendar-days"></i>
+                        <input type="date" name="date_from" id="filter-date-from" value="{{ request.GET.date_from }}" class="form-input">
+                    </div>
+                </div>
+
+                <!-- Date To -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-calendar-check"></i>Date To</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-calendar-check"></i>
+                        <input type="date" name="date_to" id="filter-date-to" value="{{ request.GET.date_to }}" class="form-input">
+                    </div>
+                </div>
+
+                <!-- Footer buttons -->
+                <div class="filter-footer">
+                    <a href="{% url 'core:transaction_list' %}" class="btn-secondary" id="clear-btn" style="display:none;">
+                        <i class="fas fa-xmark"></i>Clear
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-filter"></i>Filter
+                    </button>
+                </div>
             </div>
         </form>
     </div>
-    
-    <!-- Stats Summary -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
-            <div class="flex items-center justify-between">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="60">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
-                    <p class="text-gray-500 text-sm">Total Records</p>
-                    <p class="text-3xl font-bold text-gray-800">{{ total_count }}</p>
+                    <div class="stat-label">Total Records</div>
+                    <div class="stat-value" style="color:var(--text-primary);">{{ total_count }}</div>
                 </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-database text-purple-600 text-xl"></i>
+                <div class="stat-icon" style="background:var(--primary-subtle);">
+                    <i class="fas fa-database" style="color:var(--primary);"></i>
                 </div>
             </div>
         </div>
-        <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
-            <div class="flex items-center justify-between">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="120">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
-                    <p class="text-gray-500 text-sm">Total Revenue</p>
-                    <p class="text-3xl font-bold text-green-600">SAR {{ total_revenue|floatformat:2 }}</p>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" style="color:#0a6654;">SAR {{ total_revenue|floatformat:2 }}</div>
                 </div>
-                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                <div class="stat-icon" style="background:rgba(0,201,167,0.1);">
+                    <i class="fas fa-money-bill-wave" style="color:#00C9A7;"></i>
                 </div>
             </div>
         </div>
-        <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
-            <div class="flex items-center justify-between">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="180">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
-                    <p class="text-gray-500 text-sm">Success Rate</p>
-                    <p class="text-3xl font-bold text-blue-600">{{ success_rate }}%</p>
+                    <div class="stat-label">Success Rate</div>
+                    <div class="stat-value" style="color:#185FA5;">{{ success_rate }}%</div>
                 </div>
-                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+                <div class="stat-icon" style="background:rgba(56,139,235,0.1);">
+                    <i class="fas fa-chart-line" style="color:#378ADD;"></i>
                 </div>
             </div>
         </div>
-        <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
-            <div class="flex items-center justify-between">
+        <div class="stat-card" data-aos="fade-up" data-aos-delay="240">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
-                    <p class="text-gray-500 text-sm">Avg. Transaction</p>
-                    <p class="text-3xl font-bold text-purple-600">SAR {{ avg_transaction|floatformat:2 }}</p>
+                    <div class="stat-label">Avg. Transaction</div>
+                    <div class="stat-value" style="color:var(--primary);">SAR {{ avg_transaction|floatformat:2 }}</div>
                 </div>
-                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-calculator text-purple-600 text-xl"></i>
+                <div class="stat-icon" style="background:var(--primary-subtle);">
+                    <i class="fas fa-calculator" style="color:var(--primary);"></i>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Transactions Table -->
-    <div class="glass-card overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
+
+    <!-- Table -->
+    <div class="glass-card" style="padding:0 !important; overflow:hidden;">
+        <div class="table-wrap">
+            <table>
+                <thead>
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Branch</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Customer Type</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vehicle</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Outcome</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Price</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Branch</th>
+                        <th>Customer Type</th>
+                        <th>Vehicle</th>
+                        <th>Outcome</th>
+                        <th>Price</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody>
                     {% for transaction in transactions %}
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ transaction.id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {{ transaction.created_at|date:"M d, Y H:i" }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ transaction.branch.code }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
-                                {{ transaction.customer_type.name }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {{ transaction.vehicle_brand.name }} {{ transaction.vehicle_model.name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                    <tr onclick="window.location='{% url 'core:transaction_detail' transaction.id %}'" style="cursor:pointer;">
+                        <td class="id-cell">#{{ transaction.id }}</td>
+                        <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ transaction.branch.code }}</td>
+                        <td><span class="badge badge-type">{{ transaction.customer_type.name }}</span></td>
+                        <td>{{ transaction.vehicle_brand.name }} {{ transaction.vehicle_model.name }}</td>
+                        <td>
                             {% if transaction.outcome == 'success' %}
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                                    <i class="fas fa-check-circle mr-1"></i>Success
-                                </span>
+                                <span class="badge badge-success"><i class="fas fa-circle-check"></i>Success</span>
                             {% else %}
-                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700">
-                                    <i class="fas fa-times-circle mr-1"></i>Failed
-                                </span>
+                                <span class="badge badge-fail"><i class="fas fa-circle-xmark"></i>Failed</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <td>
                             {% if transaction.price %}
-                                <span class="font-semibold text-green-600">SAR {{ transaction.price }}</span>
+                                <span class="price-val">SAR {{ transaction.price }}</span>
                             {% else %}
-                                <span class="text-gray-400">-</span>
+                                <span class="price-nil">—</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <a href="{% url 'core:transaction_detail' transaction.id %}" 
-                               class="text-purple-600 hover:text-purple-900 mr-3">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="#" class="text-blue-600 hover:text-blue-900">
-                                <i class="fas fa-edit"></i>
-                            </a>
+                        <td>
+                            <div style="display:flex;gap:0.4rem;">
+                                <a href="{% url 'core:transaction_detail' transaction.id %}" class="action-btn" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="#" class="action-btn edit" title="Edit">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </a>
+                                <a href="#" class="action-btn delete" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-400">
-                            <i class="fas fa-inbox text-4xl mb-3"></i>
-                            <p class="text-lg">No transactions found</p>
-                            <a href="{% url 'core:add_transaction' %}" class="btn-primary inline-block mt-4">
-                                Add Your First Transaction
-                            </a>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No transactions found</p>
+                                <a href="{% url 'core:add_transaction' %}" class="btn-primary">
+                                    <i class="fas fa-plus"></i>Add First Transaction
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Pagination -->
         {% if transactions.has_other_pages %}
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <div class="flex items-center justify-between">
-                <p class="text-sm text-gray-600">
-                    Showing {{ transactions.start_index }} to {{ transactions.end_index }} of {{ total_count }} results
-                </p>
-                <div class="flex space-x-2">
-                    {% if transactions.has_previous %}
-                        <a href="?page={{ transactions.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
-                           class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    {% endif %}
-                    
-                    <span class="px-3 py-1 bg-purple-600 text-white rounded-md">
-                        {{ transactions.number }}
-                    </span>
-                    
-                    {% if transactions.has_next %}
-                        <a href="?page={{ transactions.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
-                           class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    {% endif %}
-                </div>
+        <div class="pagination-bar">
+            <span>Showing {{ transactions.start_index }}–{{ transactions.end_index }} of {{ total_count }} results</span>
+            <div class="page-btns">
+                {% if transactions.has_previous %}
+                    <a href="?page={{ transactions.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% endif %}
+                <span class="page-btn active">{{ transactions.number }}</span>
+                {% if transactions.has_next %}
+                    <a href="?page={{ transactions.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
     </div>
+
 </div>
+
+<script>
+$(document).ready(function () {
+
+    /* ─── Select2 on filters ─── */
+    function initSelect2(selector, placeholder) {
+        $(selector).select2({
+            theme: 'classic',
+            placeholder: placeholder,
+            allowClear: true,
+            width: '100%'
+        });
+    }
+
+    initSelect2('#filter-branch', 'All Branches');
+    initSelect2('#filter-ctype', 'All Types');
+    initSelect2('#filter-outcome', 'All');
+
+    /* ─── Clear button visibility ─── */
+    var params = new URLSearchParams(window.location.search);
+    var filterKeys = ['branch', 'customer_type', 'outcome', 'date_from', 'date_to'];
+    var hasFilter = filterKeys.some(function(k) { return params.get(k); });
+    if (hasFilter) $('#clear-btn').show();
+
+    /* Also watch live changes so it appears immediately when user picks anything */
+    function checkFilters() {
+        var branch   = $('#filter-branch').val();
+        var ctype    = $('#filter-ctype').val();
+        var outcome  = $('#filter-outcome').val();
+        var dateFrom = $('#filter-date-from').val();
+        var dateTo   = $('#filter-date-to').val();
+        var any = branch || ctype || outcome || dateFrom || dateTo;
+        $('#clear-btn').toggle(!!any);
+    }
+
+    $('#filter-branch, #filter-ctype, #filter-outcome').on('change', checkFilters);
+    $('#filter-date-from, #filter-date-to').on('change', checkFilters);
+
+    /* icon offset for Select2 rendered fields */
+    /* Select2 replaces the <select> — the icon sits in .field-icon-wrap, which also wraps the Select2 container */
+});
+</script>
 {% endblock %}

@@ -6,9 +6,9 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between" data-aos="fade-down">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:0.5rem;" data-aos="fade-down">
         <div class="flex items-center">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mr-4">
+            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mr-4" style="flex-shrink:0;">
                 <i class="fas fa-chart-line text-white text-xl"></i>
             </div>
             <div>
@@ -18,29 +18,26 @@
         </div>
         
         <!-- Date Filter -->
-        <div class="flex items-center space-x-4">
-            <form method="get" class="flex items-center space-x-3">
-                <select name="date_range" class="form-input min-w-[150px]" onchange="this.form.submit()">
-                    <option value="today" {% if date_range == 'today' %}selected{% endif %}>Today</option>
-                    <option value="yesterday" {% if date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
-                    <option value="this_week" {% if date_range == 'this_week' %}selected{% endif %}>This Week</option>
-                    <option value="last_week" {% if date_range == 'last_week' %}selected{% endif %}>Last Week</option>
-                    <option value="this_month" {% if date_range == 'this_month' %}selected{% endif %}>This Month</option>
-                    <option value="last_month" {% if date_range == 'last_month' %}selected{% endif %}>Last Month</option>
-                    <option value="this_year" {% if date_range == 'this_year' %}selected{% endif %}>This Year</option>
-                    <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
-                </select>
-                
-                <div id="customDateRange" class="flex items-center space-x-2 {% if date_range != 'custom' %}hidden{% endif %}">
-                    <input type="date" name="date_from" value="{{ date_from }}" class="form-input">
-                    <span class="text-gray-400">to</span>
-                    <input type="date" name="date_to" value="{{ date_to }}" class="form-input">
-                    <button type="submit" class="btn-primary">Apply</button>
-                </div>
-                    <button type="submit" class="btn-primary h-10 px-3 flex items-center justify-center" title="Refresh Data">
-                    <i class="fas fa-sync-alt"></i>&nbsp;Refresh
-                    </button>
-            </form>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <form method="get" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:nowrap;">
+    <select name="date_range" class="form-input" style="min-width:140px;padding-left:1rem;" onchange="this.form.submit()">
+        <option value="today" {% if date_range == 'today' %}selected{% endif %}>Today</option>
+        <option value="yesterday" {% if date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
+        <option value="this_week" {% if date_range == 'this_week' %}selected{% endif %}>This Week</option>
+        <option value="last_week" {% if date_range == 'last_week' %}selected{% endif %}>Last Week</option>
+        <option value="this_month" {% if date_range == 'this_month' %}selected{% endif %}>This Month</option>
+        <option value="last_month" {% if date_range == 'last_month' %}selected{% endif %}>Last Month</option>
+        <option value="this_year" {% if date_range == 'this_year' %}selected{% endif %}>This Year</option>
+        <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
+    </select>
+    
+    <div id="customDateRange" style="display:flex;align-items:center;gap:0.5rem;white-space:nowrap;{% if date_range != 'custom' %}display:none!important;{% endif %}">
+        <input type="date" name="date_from" value="{{ date_from }}" class="form-input" style="padding-left:1rem;width:140px;">
+        <span style="color:#9ca3af;">—</span>
+        <input type="date" name="date_to" value="{{ date_to }}" class="form-input" style="padding-left:1rem;width:140px;">
+        <button type="submit" class="btn-primary" style="padding:0.6rem 1.2rem;">Apply</button>
+    </div>
+</form>
         </div>
     </div>
     
@@ -49,7 +46,7 @@
         <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-table text-white"></i>
+                    <i class="fas fa-list text-white"></i>
                 </div>
                 <span class="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
                     {{ total }} Total
@@ -179,7 +176,7 @@
                 </thead>
                 <tbody>
                     {% for trans in recent_transactions %}
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <tr onclick="window.location='{% url 'core:transaction_detail' trans.id%}'" style="cursor:pointer;">
                         <td class="py-3">#{{ trans.id }}</td>
                         <td class="py-3">{{ trans.created_at|date:"M d, H:i" }}</td>
                         <td class="py-3">{{ trans.branch.code }}</td>
@@ -209,6 +206,38 @@
 {% endblock %}
 
 {% block extra_js %}
+<style>
+@media (max-width: 640px) {
+    .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+    .grid.grid-cols-1.lg\:grid-cols-2,
+    .grid.grid-cols-1.lg\:grid-cols-3 { grid-template-columns: 1fr !important; }
+    .overflow-x-auto table { min-width: 500px; }
+}
+@media (max-width: 400px) {
+    .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 640px) {
+    form[method="get"] {
+        flex-wrap: wrap !important;
+        width: 100%;
+    }
+    
+    #customDateRange {
+        flex-wrap: wrap !important;
+        width: 100%;
+        white-space: normal !important;
+    }
+    
+    #customDateRange input[type="date"] {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+    }
+    
+    #customDateRange .btn-primary {
+        width: 100%;
+    }
+}
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all charts

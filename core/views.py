@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import TransactionForm
 from .models import Transaction, VehicleModel, Branch, CustomerTypeMaster
-from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q, Sum, Avg
 from django.utils import timezone
 import json
+from django.core.paginator import Paginator
+from datetime import timedelta, datetime
 
 def create_transaction(request):
     if request.method == 'POST':
@@ -64,11 +65,6 @@ def dashboard(request):
         'customer_type_counts': customer_type_counts,
     }
     return render(request, 'core/dashboard.html', context)
-
-from django.core.paginator import Paginator
-from django.db.models import Avg, Count, Q, Sum
-from django.utils import timezone
-from datetime import timedelta, datetime
 
 def transaction_list(request):
     transactions = Transaction.objects.all().order_by('-created_at')

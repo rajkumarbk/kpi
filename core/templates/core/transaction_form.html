@@ -4,311 +4,569 @@
 {% block title %}New Transaction{% endblock %}
 
 {% block content %}
-<div class="w-full px-4 md:px-6 lg:px-8">
-    <div class="glass-card p-8" data-aos="fade-up">
-        <div class="flex items-center mb-8">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center mr-4">
-                <i class="fas fa-plus-circle text-white text-xl"></i>
+<style>
+    /* ─── Form Page Specifics ─── */
+    .form-page-wrap {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-hero {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .form-hero-icon {
+        width: 52px;
+        height: 52px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 24px var(--primary-glow);
+        flex-shrink: 0;
+    }
+
+    .form-hero-icon i { color: white; font-size: 1.2rem; }
+
+    .form-hero-text h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0 0 0.2rem;
+        line-height: 1.2;
+    }
+
+    .form-hero-text p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 0;
+        font-weight: 400;
+    }
+
+    /* Grid Helpers */
+    .field-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .field-grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    @media (max-width: 640px) {
+        .field-grid-2, .field-grid-3 { grid-template-columns: 1fr; }
+        .form-page-wrap { padding: 0 0.25rem; }
+        .outcome-tabs { flex-direction: column; }
+        .form-footer { flex-direction: column-reverse; width: 100%; }
+        .form-footer .btn-primary,
+        .form-footer .btn-secondary { width: 100%; justify-content: center; }
+        .form-panel { padding: 1rem; }
+    }
+
+    @media (min-width: 641px) and (max-width: 900px) {
+        .field-grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Divider */
+    .form-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border), transparent);
+        margin: 1.75rem 0;
+    }
+
+    /* Outcome Tabs */
+    .outcome-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .outcome-tab {
+        flex: 1;
+        padding: 0.65rem 1rem;
+        border-radius: var(--radius-sm);
+        border: 1.5px solid #E4E2F0;
+        background: var(--surface-2);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .outcome-tab:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
+    .outcome-tab.active-success { border-color: #00C9A7; color: #0a6654; background: rgba(0,201,167,0.08); }
+    .outcome-tab.active-fail { border-color: #FF4757; color: #7a1c24; background: rgba(255,71,87,0.06); }
+
+    /* Outcome badge in select */
+    #outcome-display-area {
+        margin-bottom: 0.75rem;
+    }
+
+    /* Sub-form panels */
+    .form-panel {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-panel.panel-danger {
+        background: rgba(255,71,87,0.03);
+        border-color: rgba(255,71,87,0.15);
+    }
+
+    .form-panel.panel-success {
+        background: rgba(0,201,167,0.03);
+        border-color: rgba(0,201,167,0.2);
+    }
+
+    /* Footer */
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.75rem;
+        padding-top: 1.5rem;
+        margin-top: 0.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    /* Select2 icon offset fix — select2 replaces the <select> visually */
+    .select2-icon-wrap .select2-container .select2-selection__rendered {
+        padding-left: 2.5rem !important;
+    }
+
+    /* Hidden utility */
+    .hidden { display: none !important; }
+</style>
+
+<div class="form-page-wrap" data-aos="fade-up">
+    <div class="glass-card" style="padding: 2rem !important;">
+
+        <!-- Hero Header -->
+        <div class="form-hero">
+            <div class="form-hero-icon">
+                <i class="fas fa-file-invoice"></i>
             </div>
-            <div>
-                <h2 class="text-3xl font-bold gradient-text">New Transaction</h2>
-                <p class="text-gray-500 text-sm mt-1">Record a new transaction entry</p>
+            <div class="form-hero-text">
+                <h2 class="gradient-text">New Transaction</h2>
+                <p>Record a new transaction entry into the KPI system</p>
             </div>
         </div>
+
         <form method="post" enctype="multipart/form-data" id="transaction-form">
             {% csrf_token %}
-            
-            <div class="space-y-6">
-                <!-- Common Fields -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-store text-purple-500 mr-2"></i>Branch
-                        </label>
+
+            <!-- ─── SECTION: Customer & Branch ─── -->
+            <div class="section-header">
+                <i class="fas fa-building"></i>
+                <span>Branch & Customer Info</span>
+            </div>
+
+            <div class="field-grid-3" style="margin-bottom:0;">
+                <!-- Branch -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-store"></i>Branch</div>
+                    <div class="field-icon-wrap select2-icon-wrap">
+                        <i class="field-icon fas fa-store-alt"></i>
                         {{ form.branch|add_class:"form-input" }}
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-users text-purple-500 mr-2"></i>Customer Type
-                        </label>
+                </div>
+
+                <!-- Customer Type -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-users"></i>Customer Type</div>
+                    <div class="field-icon-wrap select2-icon-wrap">
+                        <i class="field-icon fas fa-user-tag"></i>
                         {{ form.customer_type|add_class:"form-input" }}
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-bullhorn text-purple-500 mr-2"></i>Customer Source
-                        </label>
-                        {{ form.customer_source|add_class:"form-input" }}
-                    </div>
                 </div>
-                
-                <!-- Dynamic Sections -->
-                <div id="wholesale-section" class="hidden space-y-6">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-boxes text-purple-500 mr-2"></i>Wholesale Details
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Customer Sub-type</label>
-                            {{ form.wholesale_customer_type|add_class:"form-input" }}
+            </div>
+
+            <!-- ─── DYNAMIC: Wholesale ─── -->
+            <div id="wholesale-section" class="hidden" style="margin-top:1.5rem;">
+                <!-- <div class="section-header">
+                    <i class="fas fa-boxes"></i>
+                    <span>Wholesale Details</span>
+                </div> -->
+                <div class="form-panel">
+                    <div class="field-grid-2">  
+                        <div class="field-group">
+                            <div class="field-label"><i class="fas fa-layer-group"></i>Customer Sub-type</div>
+                            <div class="field-icon-wrap select2-icon-wrap">
+                                <i class="field-icon fas fa-layer-group"></i>
+                                {{ form.wholesale_customer_type|add_class:"form-input" }}
+                            </div>
                         </div>
-                        <div id="wholesale-company-field" class="hidden">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Company</label>
-                            {{ form.wholesale_company|add_class:"form-input" }}
+                        <div id="wholesale-company-field" class="field-group hidden">
+                            <div class="field-label"><i class="fas fa-building"></i>Company</div>
+                            <div class="field-icon-wrap select2-icon-wrap">
+                                <i class="field-icon fas fa-city"></i>
+                                {{ form.wholesale_company|add_class:"form-input" }}
+                            </div>
                         </div>
-                        <div id="wholesale-shop-field" class="hidden">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Shop</label>
-                            {{ form.wholesale_shop|add_class:"form-input" }}
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="individual-company-section" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Customer Sub-type</label>
-                            <select id="subtype-select" class="form-input">
-                                <option value="">Select type</option>
-                                <option value="individual">Individual</option>
-                                <option value="company">Company</option>
-                            </select>
-                        </div>
-                        <div id="individual-name-field" class="hidden">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Individual Name</label>
-                            {{ form.individual_name|add_class:"form-input" }}
-                        </div>
-                        <div id="company-name-field" class="hidden">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Company Name</label>
-                            {{ form.company_name|add_class:"form-input" }}
+                        <div id="wholesale-individual-field" class="field-group hidden">
+                            <div class="field-label"><i class="fas fa-user"></i>Individual Name</div>
+                            <div class="field-icon-wrap">
+                                <i class="field-icon fas fa-user-circle"></i>
+                                {{ form.individual_name|add_class:"form-input" }}
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div id="maintenance-type-section" class="hidden">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-tools text-purple-500 mr-2"></i>Maintenance Type
-                    </label>
-                    {{ form.maintenance_type|add_class:"form-input" }}
+            </div>
+
+            <!-- ─── DYNAMIC: Individual / Company ─── -->
+            <div id="individual-company-section" class="hidden" style="margin-top:1.5rem;">
+                <div class="form-panel">
+                    <div class="field-grid-2">
+                        <div class="field-group">
+                            <div class="field-label"><i class="fas fa-id-badge"></i>Customer Sub-type</div>
+                            <div class="field-icon-wrap">
+                                <i class="field-icon fas fa-id-badge"></i>
+                                <select id="subtype-select" class="form-input">
+                                    <option value="">Select type</option>
+                                    <option value="individual">Individual</option>
+                                    <option value="company">Company</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="individual-name-field" class="field-group hidden">
+                            <div class="field-label"><i class="fas fa-user"></i>Individual Name</div>
+                            <div class="field-icon-wrap">
+                                <i class="field-icon fas fa-user-circle"></i>
+                                {{ form.individual_name|add_class:"form-input" }}
+                            </div>
+                        </div>
+                        <div id="company-name-field" class="field-group hidden">
+                            <div class="field-label"><i class="fas fa-building"></i>Company Name</div>
+                            <div class="field-icon-wrap">
+                                <i class="field-icon fas fa-briefcase"></i>
+                                {{ form.company_name|add_class:"form-input" }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <!-- Vehicle Information -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-car text-purple-500 mr-2"></i>Brand
-                        </label>
+            </div>
+
+            <!-- ─── DYNAMIC: Maintenance Type ─── -->
+            <div id="maintenance-type-section" class="hidden" style="margin-top:1.25rem;">
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-tools"></i>Maintenance Type</div>
+                    <div class="field-icon-wrap select2-icon-wrap">
+                        <i class="field-icon fas fa-wrench"></i>
+                        {{ form.maintenance_type|add_class:"form-input" }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-divider"></div>
+
+            <!-- ─── SECTION: Vehicle Info ─── -->
+            <div class="section-header">
+                <i class="fas fa-car"></i>
+                <span>Vehicle Information</span>
+            </div>
+
+            <div class="field-grid-3">
+                <!-- Brand -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-car"></i>Brand</div>
+                    <div class="field-icon-wrap select2-icon-wrap">
+                        <i class="field-icon fas fa-car"></i>
                         {{ form.vehicle_brand|add_class:"form-input" }}
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-car-side text-purple-500 mr-2"></i>Model
-                        </label>
+                </div>
+
+                <!-- Model -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-car-side"></i>Model</div>
+                    <div class="field-icon-wrap select2-icon-wrap">
+                        <i class="field-icon fas fa-car-side"></i>
                         {{ form.vehicle_model|add_class:"form-input" }}
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar text-purple-500 mr-2"></i>Year
-                        </label>
+                </div>
+
+                <!-- Year -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-calendar-alt"></i>Year</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-calendar-check"></i>
                         {{ form.manufacture_year|add_class:"form-input" }}
                     </div>
-                    <div class="md:col-span-3">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-window-maximize text-purple-500 mr-2"></i>Glass Position
-                        </label>
-                        {{ form.glass_position|add_class:"form-input" }}
-                    </div>
                 </div>
-                
-                <!-- Outcome -->
-                <div class="space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-800">
-                        <i class="fas fa-flag-checkered text-purple-500 mr-2"></i>Transaction Outcome
-                    </h3>
-                    <div>
-                        {{ form.outcome|add_class:"form-input" }}
-                    </div>
-                    
-                    <div id="success-fields" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Price (SAR)</label>
+            </div>
+
+            <!-- Glass Position — full width -->
+            <div class="field-group" style="margin-top:1.25rem;">
+                <div class="field-label"><i class="fas fa-window-maximize"></i>Glass Position</div>
+                <div class="field-icon-wrap select2-icon-wrap">
+                    <i class="field-icon fas fa-border-all"></i>
+                    {{ form.glass_position|add_class:"form-input" }}
+                </div>
+            </div>
+
+            <div class="form-divider"></div>
+
+            <!-- ─── SECTION: Outcome ─── -->
+            <div class="section-header">
+                <i class="fas fa-flag-checkered"></i>
+                <span>Transaction Outcome</span>
+            </div>
+
+            <!-- Hidden Django outcome field — driven by tabs -->
+            <div style="display:none;">
+                {{ form.outcome|add_class:"form-input" }}
+            </div>
+
+            <!-- Outcome visual tabs -->
+            <div class="outcome-tabs" id="outcome-tabs">
+                <!-- <div class="outcome-tab" data-value="" id="tab-none">
+                    <i class="fas fa-circle-question"></i> Select Outcome
+                </div> -->
+                <div class="outcome-tab" data-value="success" id="tab-success">
+                    <i class="fas fa-circle-check"></i> Success
+                </div>
+                <div class="outcome-tab" data-value="fail" id="tab-fail">
+                    <i class="fas fa-circle-xmark"></i> Failed
+                </div>
+            </div>
+
+            <!-- Success Fields -->
+            <div id="success-fields" class="hidden form-panel panel-success">
+                <div class="field-grid-3">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-coins"></i>Price (SAR)</div>
+                        <div class="field-icon-wrap">
+                            <i class="field-icon fas fa-saudi-riyal"></i>
                             {{ form.price|add_class:"form-input" }}
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Document</label>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-file-contract"></i>Document</div>
+                        <div class="field-icon-wrap">
+                            <i class="field-icon fas fa-paperclip"></i>
                             {{ form.document|add_class:"form-input" }}
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Note</label>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-note-sticky"></i>Note</div>
+                        <div class="field-icon-wrap">
+                            <i class="field-icon fas fa-pen-to-square"></i>
                             {{ form.note|add_class:"form-input" }}
                         </div>
                     </div>
-                    
-                    <div id="fail-fields" class="hidden space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>Failure Reason
-                                </label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                    </span>
-                                    {{ form.reason|add_class:"form-input pl-10" }}
-                                </div>
-                            </div>
-                            <div id="fail-note-field" class="hidden">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-sticky-note text-yellow-500 mr-2"></i>Note
-                                </label>
-                                <div class="relative">
-                                    <span class="absolute left-3 top-3 text-gray-400">
-                                        <i class="fas fa-pen"></i>
-                                    </span>
-                                    {{ form.note|add_class:"form-input pl-10" }}
-                                </div>
-                            </div>
+                </div>
+            </div>
+
+            <!-- Fail Fields -->
+            <div id="fail-fields" class="hidden form-panel panel-danger">
+                <div class="field-grid-2">
+                    <div class="field-group">
+                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-triangle-exclamation" style="color:#FF4757;"></i>Failure Reason</div>
+                        <div class="field-icon-wrap select2-icon-wrap">
+                            <i class="field-icon fas fa-circle-exclamation" style="color:#FF4757;"></i>
+                            {{ form.reason|add_class:"form-input" }}
+                        </div>
+                    </div>
+                    <div id="fail-note-field" class="field-group hidden">
+                        <div class="field-label" style="color:#7a5a00;"><i class="fas fa-note-sticky" style="color:#FFB347;"></i>Note</div>
+                        <div class="field-icon-wrap">
+                            <i class="field-icon fas fa-pen" style="color:#FFB347;opacity:1;"></i>
+                            {{ form.note|add_class:"form-input" }}
                         </div>
                     </div>
                 </div>
-                
-                <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-                    <a href="{% url 'core:dashboard' %}" class="btn-secondary">Cancel</a>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save mr-2"></i>Save
-                    </button>
+            </div>
+            <div class="form-divider"></div>
+                <!-- Customer Source -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-bullhorn"></i>Customer Source</div>
+                    <div class="field-icon-wrap select2-icon-wrap">
+                        <i class="field-icon fas fa-satellite-dish"></i>
+                        {{ form.customer_source|add_class:"form-input" }}
+                    </div>
                 </div>
+            <!-- ─── Footer ─── -->
+            <div class="form-footer">
+                <a href="{% url 'core:dashboard' %}" class="btn-secondary">
+                    <i class="fas fa-xmark"></i> Cancel
+                </a>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-floppy-disk"></i> Save
+                </button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-$(document).ready(function() {
-    $('select').not('#subtype-select').select2({
-        theme: 'classic',
-        placeholder: 'Select an option',
-        allowClear: true
-    });
-    
-    $('#subtype-select').select2({
-        theme: 'classic',
-        placeholder: 'Select customer sub-type',
-        allowClear: true,
-        minimumResultsForSearch: -1
-    });
-    
+$(document).ready(function () {
+
+    /* ─── Select2 Init ─── */
+    function initSelect2(selector, placeholder) {
+        $(selector).select2({
+            theme: 'classic',
+            placeholder: placeholder || 'Choose',
+            allowClear: true,
+            width: '100%'
+        });
+    }
+
+    initSelect2('#id_branch', 'Select branch');
+    initSelect2('#id_customer_type', 'Select type');
+    initSelect2('#id_customer_source', 'Select source');
+    initSelect2('#id_wholesale_customer_type', 'Select sub-type');
+    initSelect2('#id_wholesale_company', 'Select company');
+    initSelect2('#id_wholesale_shop', 'Select shop');
+    initSelect2('#id_maintenance_type', 'Select type');
+    initSelect2('#id_vehicle_brand', 'Select brand');
+    initSelect2('#id_vehicle_model', 'Select model');
+    initSelect2('#id_glass_position', 'Select position');
+    initSelect2('#id_reason', 'Select reason');
+    initSelect2('#subtype-select', 'Choose sub-type');
+
+    /* ─── Vehicle Model AJAX ─── */
     $('#id_vehicle_model').prop('disabled', true);
-    
-    $('#id_vehicle_brand').change(function() {
+
+    $('#id_vehicle_brand').on('change', function () {
         var brandId = $(this).val();
         var modelSelect = $('#id_vehicle_model');
-        
+
         if (!brandId) {
-            modelSelect.prop('disabled', true);
-            modelSelect.empty().append('<option value="">Select brand first</option>');
+            modelSelect.prop('disabled', true).empty().append('<option value="">Select brand first</option>').trigger('change');
             return;
         }
-        
-        modelSelect.prop('disabled', true);
-        modelSelect.empty().append('<option value="">Loading models...</option>');
-        
+
+        modelSelect.prop('disabled', true).empty().append('<option value="">Loading…</option>');
+
         $.ajax({
             url: "{% url 'core:ajax_load_models' %}",
-            data: {'brand': brandId},
-            success: function(data) {
+            data: { 'brand': brandId },
+            success: function (data) {
                 modelSelect.empty();
-                if (data.length === 0) {
-                    modelSelect.append('<option value="">No models available</option>');
+                if (!data.length) {
+                    modelSelect.append('<option value="">No models found</option>');
                 } else {
                     modelSelect.append('<option value="">Select model</option>');
-                    $.each(data, function(i, model) {
-                        modelSelect.append($('<option>', {value: model.id, text: model.name}));
+                    $.each(data, function (i, m) {
+                        modelSelect.append($('<option>', { value: m.id, text: m.name }));
                     });
                 }
-                modelSelect.prop('disabled', false);
+                modelSelect.prop('disabled', false).trigger('change');
             }
         });
     });
-    
+    // Disable year initially
+$('#id_manufacture_year').prop('disabled', true);
+
+// Enable year only when model is selected
+$('#id_vehicle_model').on('change', function() {
+    if ($(this).val()) {
+        $('#id_manufacture_year').prop('disabled', false);
+    } else {
+        $('#id_manufacture_year').prop('disabled', true);
+    }
+});
+
+// Disable year when brand changes
+$('#id_vehicle_brand').on('change', function() {
+    $('#id_manufacture_year').prop('disabled', true).val('').trigger('change');
+});
+
+    /* ─── Customer Type Sections ─── */
     function toggleCustomerSections() {
-        var customerType = $('#id_customer_type option:selected').text().toLowerCase();
+        var txt = $('#id_customer_type option:selected').text().toLowerCase();
         $('#wholesale-section, #individual-company-section, #maintenance-type-section').addClass('hidden');
-        
-        if (customerType.includes('wholesale')) {
+
+        if (txt.includes('wholesale')) {
             $('#wholesale-section').removeClass('hidden');
-        } else if (customerType.includes('with installation') || customerType.includes('without installation')) {
+        } else if (txt.includes('with installation') || txt.includes('without installation')) {
             $('#individual-company-section').removeClass('hidden');
-        } else if (customerType.includes('maintenance')) {
+        } else if (txt.includes('maintenance')) {
             $('#individual-company-section').removeClass('hidden');
             $('#maintenance-type-section').removeClass('hidden');
         }
     }
-    
-    $('#id_customer_type').change(toggleCustomerSections);
-    
-    $('#subtype-select').change(function() {
+
+    $('#id_customer_type').on('change', toggleCustomerSections);
+
+    /* ─── Subtype Select ─── */
+    $('#subtype-select').on('change', function () {
         var val = $(this).val();
         $('#individual-name-field, #company-name-field').addClass('hidden');
         $('#id_individual_name, #id_company_name').val('');
-        
-        if (val === 'individual') {
-            $('#individual-name-field').removeClass('hidden');
-        } else if (val === 'company') {
-            $('#company-name-field').removeClass('hidden');
-        }
+        if (val === 'individual') $('#individual-name-field').removeClass('hidden');
+        else if (val === 'company') $('#company-name-field').removeClass('hidden');
     });
-    
-    $('#id_wholesale_customer_type').change(function() {
-        var text = $('#id_wholesale_customer_type option:selected').text().toLowerCase();
-        $('#wholesale-company-field, #wholesale-shop-field').addClass('hidden');
-        
-        if (text.includes('company')) {
-            $('#wholesale-company-field').removeClass('hidden');
-        } else if (text.includes('shop')) {
-            $('#wholesale-shop-field').removeClass('hidden');
-        }
+
+    /* ─── Wholesale Sub-type ─── */
+    $('#id_wholesale_customer_type').on('change', function () {
+    var txt = $(this).find('option:selected').text().toLowerCase();
+    $('#wholesale-individual-field, #wholesale-company-field').addClass('hidden');
+    if (txt.includes('individual')) $('#wholesale-individual-field').removeClass('hidden');
+    else if (txt.includes('company')) $('#wholesale-company-field').removeClass('hidden');
+});
+
+    /* ─── Fail Reason Note ─── */
+    $('#id_reason').on('change', function () {
+        var txt = $(this).find('option:selected').text().toLowerCase();
+        var showNote = txt.includes('price high') || txt.includes('not available') || txt.includes('other');
+        $('#fail-note-field').toggleClass('hidden', !showNote);
+        if (!showNote) $('#id_note').val('');
     });
-    
-    $('#id_reason').change(function() {
-        var reasonText = $(this).find('option:selected').text().toLowerCase();
-        if (reasonText.includes('price high') || 
-            reasonText.includes('not available') || 
-            reasonText.includes('other')) {
-            $('#fail-note-field').removeClass('hidden');
+
+    /* ─── Outcome Tabs ─── */
+    function toggleOutcome(val) {
+        // Update hidden Django field
+        $('#id_outcome').val(val).trigger('change');
+
+        // Update tab styles
+        $('.outcome-tab').removeClass('active-success active-fail');
+        if (val === 'success') {
+            $('#tab-success').addClass('active-success');
+            $('#success-fields').removeClass('hidden');
+            $('#fail-fields').addClass('hidden');
+        } else if (val === 'fail') {
+            $('#tab-fail').addClass('active-fail');
+            $('#fail-fields').removeClass('hidden');
+            $('#success-fields').addClass('hidden');
+
+            // Re-init Select2 on reason after panel becomes visible
+            setTimeout(function () {
+                if ($('#id_reason').data('select2')) $('#id_reason').select2('destroy');
+                initSelect2('#id_reason', 'Select reason');
+            }, 50);
         } else {
-            $('#fail-note-field').addClass('hidden');
-            $('#id_note').val('');
+            $('#success-fields, #fail-fields').addClass('hidden');
         }
-    });
-    
-    function toggleOutcome() {
-    var outcome = $('#id_outcome').val();
-    $('#success-fields, #fail-fields').addClass('hidden');
-    
-    if (outcome === 'success') {
-        $('#success-fields').removeClass('hidden');
-    } else if (outcome === 'fail') {
-        $('#fail-fields').removeClass('hidden');
-        // Re-initialize Select2 on reason field when visible
-        setTimeout(function() {
-            if ($('#id_reason').data('select2')) {
-                $('#id_reason').select2('destroy');
-            }
-            $('#id_reason').select2({
-                theme: 'classic',
-                placeholder: 'Select an option',
-                allowClear: true,
-                width: '100%'
-            });
-        }, 50);
     }
-}
-    
-    $('#id_outcome').change(toggleOutcome);
-    
+
+    $('.outcome-tab').on('click', function () {
+        toggleOutcome($(this).data('value'));
+    });
+
+    // Sync from hidden select if pre-filled (edit mode)
+    var preVal = $('#id_outcome').val();
+    if (preVal) toggleOutcome(preVal);
+
+    // Initial state
     toggleCustomerSections();
-    toggleOutcome();
 });
 </script>
 {% endblock %}

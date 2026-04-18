@@ -3,181 +3,196 @@
 {% block title %}Transaction #{{ transaction.id }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-6" data-aos="fade-up">
+<style>
+    .detail-wrap { max-width: 900px; margin: 0 auto; }
+    .detail-header {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+    }
+    .detail-header-left { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+    .detail-header-right { display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap; }
+    .back-btn {
+        width: 38px; height: 38px; border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border); background: var(--surface-2);
+        color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
+        text-decoration: none; transition: all 0.2s; flex-shrink: 0;
+    }
+    .back-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
+
+    .outcome-banner {
+        display: flex; align-items: center; justify-content: space-between;
+        flex-wrap: wrap; gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: var(--radius-xl);
+        margin-bottom: 1.25rem;
+    }
+    .outcome-banner-left { display: flex; align-items: center; gap: 0.875rem; }
+    .outcome-icon {
+        width: 48px; height: 48px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; font-size: 1.1rem; color: white;
+    }
+
+    .detail-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+    .detail-section-title {
+        font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);
+        display: flex; align-items: center; gap: 0.5rem;
+        margin-bottom: 1rem; padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .detail-section-title i { color: var(--primary); font-size: 0.8rem; }
+    .detail-row {
+        display: flex; justify-content: space-between; align-items: baseline;
+        gap: 0.5rem; padding: 0.4rem 0;
+        border-bottom: 1px solid rgba(108,71,255,0.05);
+        font-size: 0.875rem;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row-label { color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+    .detail-row-value { font-weight: 600; color: var(--text-primary); text-align: right; word-break: break-word; }
+
+    .btn-danger {
+        background: #FF4757; color: white;
+        padding: 0.6rem 1.1rem; border-radius: var(--radius-md);
+        font-weight: 600; font-size: 0.85rem; border: none; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        transition: all 0.2s;
+    }
+    .btn-danger:hover { background: #e63946; }
+
+    @media (max-width: 640px) {
+        .detail-header { flex-direction: column; }
+        .detail-header-right { width: 100%; }
+        .detail-header-right .btn-secondary,
+        .detail-header-right .btn-danger { flex: 1; justify-content: center; }
+        .outcome-banner { flex-direction: column; }
+        .outcome-banner-right { width: 100%; padding-top: 0.75rem; border-top: 1px solid rgba(0,0,0,0.08); }
+        .detail-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="detail-wrap" data-aos="fade-up">
+
     <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div class="flex items-center">
-            <a href="{% url 'core:transaction_list' %}" class="mr-4 text-gray-500 hover:text-purple-600">
-                <i class="fas fa-arrow-left text-xl"></i>
+    <div class="detail-header">
+        <div class="detail-header-left">
+            <a href="{% url 'core:transaction_list' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
             </a>
             <div>
                 <h2 class="text-3xl font-bold gradient-text">Transaction Details</h2>
-                <p class="text-gray-500 text-sm mt-1">Transaction #{{ transaction.id }} • {{ transaction.created_at|date:"F d, Y H:i" }}</p>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-top:0.15rem;">
+                    #{{ transaction.id }} &bull; {{ transaction.created_at|date:"F d, Y H:i" }}
+                </p>
             </div>
         </div>
-        <div class="flex space-x-3">
-            <button class="btn-secondary">
-                <i class="fas fa-edit mr-2"></i>Edit
+        <div class="detail-header-right">
+            <button class="btn-secondary" style="padding:0.6rem 1.1rem;font-size:0.85rem;">
+                <i class="fas fa-pen-to-square"></i>Edit
             </button>
-            <button class="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition">
-                <i class="fas fa-trash mr-2"></i>Delete
+            <button class="btn-danger">
+                <i class="fas fa-trash"></i>Delete
             </button>
         </div>
     </div>
-    
+
     <!-- Outcome Banner -->
-    <div class="glass-card p-6 {% if transaction.outcome == 'success' %}bg-green-50 border-l-4 border-green-500{% else %}bg-red-50 border-l-4 border-red-500{% endif %}">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center">
-                {% if transaction.outcome == 'success' %}
-                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-check text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-green-700">Transaction Successful</h3>
-                        <p class="text-green-600">Completed on {{ transaction.created_at|date:"F d, Y" }}</p>
-                    </div>
-                {% else %}
-                    <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4">
-                        <i class="fas fa-times text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-red-700">Transaction Failed</h3>
-                        <p class="text-red-600">Reason: {{ transaction.reason.name|default:"Not specified" }}</p>
-                    </div>
-                {% endif %}
+    {% if transaction.outcome == 'success' %}
+    <div class="outcome-banner" style="background:rgba(0,201,167,0.06);border:1px solid rgba(0,201,167,0.25);border-left:4px solid #00C9A7;">
+        <div class="outcome-banner-left">
+            <div class="outcome-icon" style="background:#00C9A7;">
+                <i class="fas fa-check"></i>
             </div>
-            {% if transaction.price %}
-                <div class="text-right">
-                    <p class="text-sm text-gray-600">Transaction Value</p>
-                    <p class="text-3xl font-bold text-green-600">SAR {{ transaction.price }}</p>
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:#0a6654;">Transaction Successful</div>
+                <div style="font-size:0.82rem;color:#2a8a74;">Completed on {{ transaction.created_at|date:"F d, Y" }}</div>
+            </div>
+        </div>
+        {% if transaction.price %}
+        <div class="outcome-banner-right" style="text-align:right;">
+            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Transaction Value</div>
+            <div style="font-size:1.6rem;font-weight:700;color:#0a6654;">SAR {{ transaction.price }}</div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="outcome-banner" style="background:rgba(255,71,87,0.04);border:1px solid rgba(255,71,87,0.2);border-left:4px solid #FF4757;">
+        <div class="outcome-banner-left">
+            <div class="outcome-icon" style="background:#FF4757;">
+                <i class="fas fa-xmark"></i>
+            </div>
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:#7a1c24;">Transaction Failed</div>
+                <div style="font-size:0.82rem;color:#a0232e;">Reason: {{ transaction.reason.name|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Details Grid -->
+    <div class="detail-grid">
+
+        <!-- Basic Information -->
+        <div class="glass-card">
+            <div class="detail-section-title"><i class="fas fa-info-circle"></i>Basic Information</div>
+            <div class="detail-row"><span class="detail-row-label">Branch</span><span class="detail-row-value">{{ transaction.branch }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Customer Type</span><span class="detail-row-value">{{ transaction.customer_type.name }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Source</span><span class="detail-row-value">{{ transaction.customer_source.name }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Created</span><span class="detail-row-value">{{ transaction.created_at|date:"M d, Y H:i" }}</span></div>
+        </div>
+
+        <!-- Customer Details -->
+        <div class="glass-card">
+            <div class="detail-section-title"><i class="fas fa-user"></i>Customer Details</div>
+            {% if transaction.wholesale_customer_type %}
+                <div class="detail-row"><span class="detail-row-label">Type</span><span class="detail-row-value">{{ transaction.wholesale_customer_type }}</span></div>
+                {% if transaction.wholesale_company %}
+                <div class="detail-row"><span class="detail-row-label">Company</span><span class="detail-row-value">{{ transaction.wholesale_company }}</span></div>
+                {% endif %}
+                {% if transaction.wholesale_shop %}
+                <div class="detail-row"><span class="detail-row-label">Shop</span><span class="detail-row-value">{{ transaction.wholesale_shop }}</span></div>
+                {% endif %}
+            {% elif transaction.individual_name %}
+                <div class="detail-row"><span class="detail-row-label">Individual</span><span class="detail-row-value">{{ transaction.individual_name }}</span></div>
+            {% elif transaction.company_name %}
+                <div class="detail-row"><span class="detail-row-label">Company</span><span class="detail-row-value">{{ transaction.company_name }}</span></div>
+            {% endif %}
+            {% if transaction.maintenance_type %}
+                <div class="detail-row"><span class="detail-row-label">Maintenance</span><span class="detail-row-value">{{ transaction.maintenance_type.name }}</span></div>
+            {% endif %}
+        </div>
+
+        <!-- Vehicle Information -->
+        <div class="glass-card">
+            <div class="detail-section-title"><i class="fas fa-car"></i>Vehicle Information</div>
+            <div class="detail-row"><span class="detail-row-label">Brand</span><span class="detail-row-value">{{ transaction.vehicle_brand.name }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Model</span><span class="detail-row-value">{{ transaction.vehicle_model.name }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Year</span><span class="detail-row-value">{{ transaction.manufacture_year.year }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Glass Position</span><span class="detail-row-value">{{ transaction.glass_position.name }}</span></div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="glass-card">
+            <div class="detail-section-title"><i class="fas fa-file-lines"></i>Additional Information</div>
+            {% if transaction.note %}
+                <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Note</div>
+                <p style="background:var(--surface-2);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.875rem;color:var(--text-secondary);margin:0;">{{ transaction.note }}</p>
+            {% else %}
+                <p style="color:var(--text-muted);text-align:center;padding:1rem 0;font-size:0.875rem;">No additional notes</p>
+            {% endif %}
+            {% if transaction.document %}
+                <div style="margin-top:1rem;">
+                    <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Document</div>
+                    <a href="{{ transaction.document.url }}" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:var(--primary-subtle);color:var(--primary);border-radius:var(--radius-sm);font-size:0.85rem;font-weight:600;text-decoration:none;border:1px solid var(--border-strong);">
+                        <i class="fas fa-download"></i>Download Document
+                    </a>
                 </div>
             {% endif %}
         </div>
-    </div>
-    
-    <!-- Details Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Basic Information -->
-        <div class="glass-card p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-info-circle text-purple-500 mr-2"></i>Basic Information
-            </h3>
-            <div class="space-y-3">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Branch:</span>
-                    <span class="font-semibold">{{ transaction.branch }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Customer Type:</span>
-                    <span class="font-semibold">{{ transaction.customer_type.name }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Source:</span>
-                    <span class="font-semibold">{{ transaction.customer_source.name }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Created:</span>
-                    <span class="font-semibold">{{ transaction.created_at|date:"M d, Y H:i" }}</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Customer Details -->
-        <div class="glass-card p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-user text-purple-500 mr-2"></i>Customer Details
-            </h3>
-            <div class="space-y-3">
-                {% if transaction.wholesale_customer_type %}
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Type:</span>
-                        <span class="font-semibold">{{ transaction.wholesale_customer_type }}</span>
-                    </div>
-                    {% if transaction.wholesale_company %}
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Company:</span>
-                            <span class="font-semibold">{{ transaction.wholesale_company }}</span>
-                        </div>
-                    {% endif %}
-                    {% if transaction.wholesale_shop %}
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Shop:</span>
-                            <span class="font-semibold">{{ transaction.wholesale_shop }}</span>
-                        </div>
-                    {% endif %}
-                {% elif transaction.individual_name %}
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Individual:</span>
-                        <span class="font-semibold">{{ transaction.individual_name }}</span>
-                    </div>
-                {% elif transaction.company_name %}
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Company:</span>
-                        <span class="font-semibold">{{ transaction.company_name }}</span>
-                    </div>
-                {% endif %}
-                
-                {% if transaction.maintenance_type %}
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Maintenance:</span>
-                        <span class="font-semibold">{{ transaction.maintenance_type.name }}</span>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Vehicle Information -->
-        <div class="glass-card p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-car text-purple-500 mr-2"></i>Vehicle Information
-            </h3>
-            <div class="space-y-3">
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Brand:</span>
-                    <span class="font-semibold">{{ transaction.vehicle_brand.name }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Model:</span>
-                    <span class="font-semibold">{{ transaction.vehicle_model.name }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Year:</span>
-                    <span class="font-semibold">{{ transaction.manufacture_year.year }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-600">Glass Position:</span>
-                    <span class="font-semibold">{{ transaction.glass_position.name }}</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Additional Info -->
-        <div class="glass-card p-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-file-alt text-purple-500 mr-2"></i>Additional Information
-            </h3>
-            <div class="space-y-3">
-                {% if transaction.note %}
-                    <div>
-                        <p class="text-gray-600 mb-2">Note:</p>
-                        <p class="bg-gray-50 p-3 rounded-lg">{{ transaction.note }}</p>
-                    </div>
-                {% else %}
-                    <p class="text-gray-400 text-center py-4">No additional notes</p>
-                {% endif %}
-                
-                {% if transaction.document %}
-                    <div class="mt-4">
-                        <p class="text-gray-600 mb-2">Document:</p>
-                        <a href="{{ transaction.document.url }}" target="_blank" 
-                           class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
-                            <i class="fas fa-download mr-2"></i>Download Document
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+
     </div>
 </div>
 {% endblock %}

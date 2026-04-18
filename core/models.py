@@ -61,8 +61,12 @@ class VehicleModel(models.Model):
     def __str__(self):
         return f"{self.brand.name} {self.name}"
 
+# models.py
 class ManufactureYear(models.Model):
     year = models.PositiveIntegerField(unique=True, validators=[MinValueValidator(1960), MaxValueValidator(2050)])
+
+    class Meta:
+        ordering = ['year']
 
     def __str__(self):
         return str(self.year)

@@ -1,7 +1,7 @@
 from django import forms
 from .models import Transaction, Branch, CustomerTypeMaster, VehicleBrand, VehicleModel, ManufactureYear, GlassPosition, CustomerSource, WholesaleCustomerType, WholesaleCompany, WholesaleShop, MaintenanceType, Reason
 from django_select2.forms import Select2Widget
-
+import datetime
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
@@ -20,6 +20,12 @@ class TransactionForm(forms.ModelForm):
             'maintenance_type': Select2Widget,
             'reason': Select2Widget,
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        current_year = datetime.datetime.now().year
+        year_obj = ManufactureYear.objects.filter(year=current_year).first()
+        if year_obj:
+            self.fields['manufacture_year'].initial = year_obj.id
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
