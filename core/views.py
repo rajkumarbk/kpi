@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import TransactionForm
+from django import forms
+from .forms import TransactionForm, LoginForm
 from .models import Transaction, VehicleModel, Branch, CustomerTypeMaster
 from django.http import JsonResponse
 from django.db.models import Count, Q, Sum, Avg
@@ -8,24 +9,76 @@ from django.utils import timezone
 import json
 from django.core.paginator import Paginator
 from datetime import timedelta, datetime
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import UserCreationForm
 
+from django.contrib.auth.decorators import user_passes_test
+
+def check_admin(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'admin'
+
+def admin_required(view_func):
+    decorated_view = user_passes_test(check_admin, login_url='core:login')(view_func)
+    return decorated_view
+
+def login_view(request):
+    if request.user.is_authenticated:
+        try:
+            if request.user.userprofile.role == 'admin':
+                return redirect('core:dashboard')
+            else:
+                return redirect('core:add_transaction')
+        except:
+            return redirect('core:add_transaction')
+    
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            try:
+                if user.userprofile.role == 'admin':
+                    return redirect('core:dashboard')
+                else:
+                    return redirect('core:add_transaction')
+            except:
+                return redirect('core:add_transaction')
+        else:
+            error = "Invalid username or password"
+    
+    return render(request, 'registration/login.html', {'error': error})
+
+def logout_view(request):
+    logout(request)
+    return redirect('core:login')
+
+@login_required
 def create_transaction(request):
     if request.method == 'POST':
         form = TransactionForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            transaction = form.save(commit=False)
+            # Auto-set branch for non-admin users
+            if request.user.userprofile.role != 'admin':
+                transaction.branch = request.user.userprofile.branch
+            transaction.save()
             messages.success(request, 'Transaction recorded successfully!')
-            return redirect('core:dashboard')
+            return redirect('core:transaction_list')
     else:
         form = TransactionForm()
+        # Hide branch field for non-admin users
+        if request.user.userprofile.role != 'admin':
+            form.fields['branch'].widget = forms.HiddenInput()
+            form.fields['branch'].initial = request.user.userprofile.branch
+    
     return render(request, 'core/transaction_form.html', {'form': form})
 
-def load_models(request):
-    """AJAX endpoint to get models for selected brand"""
-    brand_id = request.GET.get('brand')
-    models = VehicleModel.objects.filter(brand_id=brand_id).order_by('name')
-    return JsonResponse(list(models.values('id', 'name')), safe=False)
-
+@admin_required
+@login_required
 def dashboard(request):
     # Overall stats
     total = Transaction.objects.count()
@@ -66,8 +119,18 @@ def dashboard(request):
     }
     return render(request, 'core/dashboard.html', context)
 
+def load_models(request):
+    brand_id = request.GET.get('brand')
+    models = VehicleModel.objects.filter(brand_id=brand_id).order_by('name')
+    return JsonResponse(list(models.values('id', 'name')), safe=False)
+
+@login_required
 def transaction_list(request):
-    transactions = Transaction.objects.all().order_by('-created_at')
+    if request.user.userprofile.role == 'admin':
+        transactions = Transaction.objects.all()
+    else:
+        transactions = Transaction.objects.filter(branch=request.user.userprofile.branch)
+    
     
     # Apply filters
     branch = request.GET.get('branch')
@@ -76,7 +139,7 @@ def transaction_list(request):
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
-    if branch:
+    if branch and request.user.userprofile.role == 'admin':
         transactions = transactions.filter(branch_id=branch)
     if customer_type:
         transactions = transactions.filter(customer_type_id=customer_type)
@@ -86,6 +149,8 @@ def transaction_list(request):
         transactions = transactions.filter(created_at__date__gte=date_from)
     if date_to:
         transactions = transactions.filter(created_at__date__lte=date_to)
+    
+    transactions = transactions.order_by('-created_at')
     
     # Calculate stats
     total_count = transactions.count()
@@ -113,10 +178,13 @@ def transaction_list(request):
     }
     return render(request, 'core/transaction_list.html', context)
 
+@login_required
 def transaction_detail(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     return render(request, 'core/transaction_detail.html', {'transaction': transaction})
 
+@login_required
+@admin_required
 def dashboard(request):
     # Date range logic
     date_range = request.GET.get('date_range', 'this_month')

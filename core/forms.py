@@ -1,7 +1,14 @@
 from django import forms
 from .models import Transaction, Branch, CustomerTypeMaster, VehicleBrand, VehicleModel, ManufactureYear, GlassPosition, CustomerSource, WholesaleCustomerType, WholesaleCompany, WholesaleShop, MaintenanceType, Reason
 from django_select2.forms import Select2Widget
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 import datetime
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Username'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password'}))
+    
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
@@ -26,6 +33,9 @@ class TransactionForm(forms.ModelForm):
         year_obj = ManufactureYear.objects.filter(year=current_year).first()
         if year_obj:
             self.fields['manufacture_year'].initial = year_obj.id
+        if self.user and hasattr(self.user, 'userprofile') and self.user.userprofile.role != 'admin':
+            self.fields['branch'].queryset = Branch.objects.filter(id=self.user.userprofile.branch.id)
+            self.fields['branch'].initial = self.user.userprofile.branch
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

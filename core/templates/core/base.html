@@ -506,14 +506,19 @@
                         <img src="/static/img/23.png" alt="Company Logo" style="max-height:56px;width:auto;max-width:100%;">
                     </div>
                     <div class="flex items-center nav-links-desktop" style="gap:0.25rem;">
+                        {% if user.userprofile.role == 'admin' %}
                         <a href="{% url 'core:dashboard' %}" class="nav-link active">
                             <i class="fas fa-chart-pie"></i>Dashboard
                         </a>
+                            {% endif %}
                         <a href="{% url 'core:add_transaction' %}" class="nav-link active">
                             <i class="fas fa-plus-circle"></i>New Entry
                         </a>
                         <a href="{% url 'core:transaction_list' %}" class="nav-link active">
                             <i class="fas fa-list-ul"></i>View All
+                        </a>
+                        <a href="{% url 'core:logout' %}" class="nav-link active">
+                            <i class="fas fa-sign-out-alt"></i>Logout
                         </a>
                     </div>
                     <button class="nav-hamburger" id="nav-toggle" aria-label="Menu">
@@ -525,6 +530,7 @@
                     <a href="{% url 'core:dashboard' %}" class="nav-link active"><i class="fas fa-chart-pie"></i>Dashboard</a>
                     <a href="{% url 'core:add_transaction' %}" class="nav-link active"><i class="fas fa-plus-circle"></i>New Entry</a>
                     <a href="{% url 'core:transaction_list' %}" class="nav-link active"><i class="fas fa-list-ul"></i>View All</a>
+                    <a href="{% url 'core:logout' %}" class="nav-link active"><i class="fas fa-sign-out-alt"></i>Logout</a>
                 </div>
             </div>
         </nav>

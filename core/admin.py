@@ -1,5 +1,28 @@
 from django.contrib import admin
 from .models import *
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from .models import UserProfile
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    fields = ('role', 'branch')
+
+class CustomUserAdmin(UserAdmin):
+    inlines = (UserProfileInline,)
+    list_display = ('username', 'email', 'get_role', 'get_branch', 'is_staff')
+    
+    def get_role(self, obj):
+        return obj.userprofile.role if hasattr(obj, 'userprofile') else '-'
+    get_role.short_description = 'Role'
+    
+    def get_branch(self, obj):
+        return obj.userprofile.branch.code if hasattr(obj, 'userprofile') and obj.userprofile.branch else '-'
+    get_branch.short_description = 'Branch'
+
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
 
 @admin.register(Branch)
 class BranchAdmin(admin.ModelAdmin):

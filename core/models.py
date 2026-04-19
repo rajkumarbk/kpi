@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import User
 
 # ---------- Master Data Models ----------
 class Branch(models.Model):
@@ -16,6 +17,17 @@ class Branch(models.Model):
 
     class Meta:
         ordering = ['company', 'code']
+class UserProfile(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('user', 'User'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
+    branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.role}"
 
 class CustomerTypeMaster(models.Model):
     """For the main customer type selection: wholesale, with/without installation, maintenance"""

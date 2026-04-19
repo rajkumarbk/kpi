@@ -193,17 +193,23 @@
 
                 <!-- Branch -->
                 <div class="field-group">
-                    <div class="field-label"><i class="fas fa-store-alt"></i>Branch</div>
-                    <div class="field-icon-wrap">
-                        <i class="field-icon fas fa-store-alt"></i>
-                        <select name="branch" class="form-input" id="filter-branch">
-                            <option value="">All Branches</option>
-                            {% for branch in branches %}
-                                <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
+    <div class="field-label"><i class="fas fa-store-alt"></i>Branch</div>
+    <div class="field-icon-wrap">
+        <i class="field-icon fas fa-store-alt"></i>
+        {% if request.user.userprofile.role == 'admin' %}
+            <select name="branch" class="form-input" id="filter-branch">
+                <option value="">All Branches</option>
+                {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch }}</option>
+                {% endfor %}
+            </select>
+        {% else %}
+            <select name="branch" class="form-input" id="filter-branch" disabled style="background:#f3f4f6; cursor:not-allowed;">
+                <option value="{{ request.user.userprofile.branch.id }}" selected>{{ request.user.userprofile.branch }}</option>
+            </select>
+        {% endif %}
+    </div>
+</div>
 
                 <!-- Customer Type -->
                 <div class="field-group">
