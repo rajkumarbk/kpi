@@ -4,8 +4,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 # ---------- Master Data Models ----------
 class Branch(models.Model):
     COMPANY_CHOICES = [
-        ('Al Salem', 'Al Salem Auto Glass'),
-        ('Watam', 'Watam Auto Glass'),
+        ('Al Salem Auto Glass', 'Al Salem Auto Glass'),
+        ('Watam Auto Glass', 'Watam Auto Glass'),
     ]
     company = models.CharField(max_length=20, choices=COMPANY_CHOICES)
     code = models.CharField(max_length=10, unique=True)  # e.g., 101, W01
@@ -79,6 +79,7 @@ class GlassPosition(models.Model):
 
 class MaintenanceType(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    maintenance_note = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
@@ -129,9 +130,9 @@ class Transaction(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     document = models.FileField(upload_to='documents/', null=True, blank=True)
     note = models.TextField(blank=True)
-
-    # Failure reason
     reason = models.ForeignKey(Reason, on_delete=models.SET_NULL, null=True, blank=True)
+    expected_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    maintenance_other_note = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

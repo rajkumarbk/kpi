@@ -31,8 +31,11 @@ class TransactionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Make non-common fields not required initially
         self.fields['wholesale_customer_type'].required = False
-        self.fields['wholesale_company'].required = False
+        self.fields['wholesale_customer_type'].empty_label = None
         self.fields['wholesale_shop'].required = False
+        self.fields['wholesale_shop'].empty_label = None
+        self.fields['wholesale_company'].required = False
+        self.fields['wholesale_company'].empty_label = None
         self.fields['individual_name'].required = False
         self.fields['company_name'].required = False
         self.fields['maintenance_type'].required = False

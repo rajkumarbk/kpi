@@ -92,6 +92,8 @@ def transaction_list(request):
     total_revenue = transactions.filter(outcome='success').aggregate(total=Sum('price'))['total'] or 0
     success_count = transactions.filter(outcome='success').count()
     success_rate = round((success_count / total_count * 100) if total_count > 0 else 0, 1)
+    fail_count = transactions.filter(outcome='fail').count()
+    fail_rate = round((fail_count / total_count * 100) if total_count > 0 else 0, 1)
     avg_transaction = total_revenue / success_count if success_count > 0 else 0
     
     # Pagination
@@ -104,6 +106,7 @@ def transaction_list(request):
         'total_count': total_count,
         'total_revenue': total_revenue,
         'success_rate': success_rate,
+        'fail_rate': fail_rate,
         'avg_transaction': avg_transaction,
         'branches': Branch.objects.all(),
         'customer_types': CustomerTypeMaster.objects.all(),
@@ -119,6 +122,7 @@ def dashboard(request):
     date_range = request.GET.get('date_range', 'this_month')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
+    selected_branch = request.GET.get('branch', '')
     
     today = timezone.now().date()
     
@@ -151,13 +155,16 @@ def dashboard(request):
     
     # Filter transactions by date
     transactions = Transaction.objects.filter(created_at__date__gte=date_from, created_at__date__lte=date_to)
+    if selected_branch:
+        transactions = transactions.filter(branch_id=selected_branch)
     
     # Previous period for trend
     period_days = (date_to - date_from).days
     prev_date_from = date_from - timedelta(days=period_days)
     prev_date_to = date_from - timedelta(days=1)
     prev_transactions = Transaction.objects.filter(created_at__date__gte=prev_date_from, created_at__date__lte=prev_date_to)
-    
+    if selected_branch:
+        prev_transactions = prev_transactions.filter(branch_id=selected_branch)
     # Calculate trends
     current_total = transactions.count()
     prev_total = prev_transactions.count()
@@ -235,5 +242,7 @@ def dashboard(request):
         'reason_data': json.dumps(reason_data),
         'branch_stats': branch_stats,
         'recent_transactions': recent_transactions,
+        'selected_branch': selected_branch,
+        'branches': Branch.objects.all().order_by('code'),
     }
     return render(request, 'core/dashboard.html', context)

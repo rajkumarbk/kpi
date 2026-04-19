@@ -175,23 +175,32 @@
 
         <!-- Additional Info -->
         <div class="glass-card">
-            <div class="detail-section-title"><i class="fas fa-file-lines"></i>Additional Information</div>
-            {% if transaction.note %}
-                <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Note</div>
-                <p style="background:var(--surface-2);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.875rem;color:var(--text-secondary);margin:0;">{{ transaction.note }}</p>
-            {% else %}
-                <p style="color:var(--text-muted);text-align:center;padding:1rem 0;font-size:0.875rem;">No additional notes</p>
-            {% endif %}
-            {% if transaction.document %}
-                <div style="margin-top:1rem;">
-                    <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Document</div>
-                    <a href="{{ transaction.document.url }}" target="_blank"
-                       style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:var(--primary-subtle);color:var(--primary);border-radius:var(--radius-sm);font-size:0.85rem;font-weight:600;text-decoration:none;border:1px solid var(--border-strong);">
-                        <i class="fas fa-download"></i>Download Document
-                    </a>
-                </div>
-            {% endif %}
+    <div class="detail-section-title"><i class="fas fa-file-lines"></i>Additional Information</div>
+    
+    {% if transaction.note %}
+        <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Note</div>
+        <p style="background:var(--surface-2);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.875rem;color:var(--text-secondary);margin:0;">{{ transaction.note }}</p>
+    {% else %}
+        <p style="color:var(--text-muted);text-align:center;padding:1rem 0;font-size:0.875rem;">No additional notes</p>
+    {% endif %}
+    
+    {% if transaction.expected_price %}
+        <div style="margin-top:1rem;">
+            <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Expected Price</div>
+            <p style="background:var(--surface-2);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.875rem;color:var(--text-secondary);margin:0;">{{ transaction.expected_price }} SAR</p>
         </div>
+    {% endif %}
+    
+    {% if transaction.document %}
+        <div style="margin-top:1rem;">
+            <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Document</div>
+            <a href="{{ transaction.document.url }}" target="_blank"
+               style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1rem;background:var(--primary-subtle);color:var(--primary);border-radius:var(--radius-sm);font-size:0.85rem;font-weight:600;text-decoration:none;border:1px solid var(--border-strong);">
+                <i class="fas fa-download"></i>Download Document
+            </a>
+        </div>
+    {% endif %}
+</div>
 
     </div>
 </div>

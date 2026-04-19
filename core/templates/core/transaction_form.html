@@ -220,49 +220,43 @@
                                 {{ form.wholesale_company|add_class:"form-input" }}
                             </div>
                         </div>
-                        <div id="wholesale-individual-field" class="field-group hidden">
+                        <div id="wholesale-shop-field" class="field-group hidden">
+                            <div class="field-label"><i class="fas fa-store"></i>Shop</div>
+                            <div class="field-icon-wrap select2-icon-wrap">
+                                <i class="field-icon fas fa-store-alt"></i>
+                                {{ form.wholesale_shop|add_class:"form-input" }}
+                            </div>
+                        </div>
+                        <!-- <div id="wholesale-individual-field" class="field-group hidden">
                             <div class="field-label"><i class="fas fa-user"></i>Individual Name</div>
                             <div class="field-icon-wrap">
                                 <i class="field-icon fas fa-user-circle"></i>
                                 {{ form.individual_name|add_class:"form-input" }}
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
 
             <!-- ─── DYNAMIC: Individual / Company ─── -->
-            <div id="individual-company-section" class="hidden" style="margin-top:1.5rem;">
-                <div class="form-panel">
-                    <div class="field-grid-2">
-                        <div class="field-group">
-                            <div class="field-label"><i class="fas fa-id-badge"></i>Customer Sub-type</div>
-                            <div class="field-icon-wrap">
-                                <i class="field-icon fas fa-id-badge"></i>
-                                <select id="subtype-select" class="form-input">
-                                    <option value="">Select type</option>
-                                    <option value="individual">Individual</option>
-                                    <option value="company">Company</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="individual-name-field" class="field-group hidden">
-                            <div class="field-label"><i class="fas fa-user"></i>Individual Name</div>
-                            <div class="field-icon-wrap">
-                                <i class="field-icon fas fa-user-circle"></i>
-                                {{ form.individual_name|add_class:"form-input" }}
-                            </div>
-                        </div>
-                        <div id="company-name-field" class="field-group hidden">
-                            <div class="field-label"><i class="fas fa-building"></i>Company Name</div>
-                            <div class="field-icon-wrap">
-                                <i class="field-icon fas fa-briefcase"></i>
-                                {{ form.company_name|add_class:"form-input" }}
-                            </div>
-                        </div>
-                    </div>
+<div id="individual-company-section" class="hidden" style="margin-top:1.5rem;">
+    <div class="form-panel">
+        <div class="field-grid-2">
+            <div class="field-group" id="subtype-select-wrapper">
+                <div class="field-label"><i class="fas fa-id-badge"></i>Customer Sub-type</div>
+                <div class="field-icon-wrap">
+                    <i class="field-icon fas fa-id-badge"></i>
+                    <select id="subtype-select" class="form-input">
+                        <option value="">Select type</option>
+                        <!-- options injected by JS based on customer type -->
+                    </select>
                 </div>
             </div>
+            <!-- Placeholder: real #wholesale-shop-field is moved here by JS when subtype=shop -->
+            <div id="shared-shop-placeholder"></div>
+        </div>
+    </div>
+</div>
 
             <!-- ─── DYNAMIC: Maintenance Type ─── -->
             <div id="maintenance-type-section" class="hidden" style="margin-top:1.25rem;">
@@ -271,6 +265,13 @@
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-wrench"></i>
                         {{ form.maintenance_type|add_class:"form-input" }}
+                    </div>
+                </div>
+                <div id="maintenance-other-note-field" class="field-group hidden" style="margin-top:1rem;">
+                    <div class="field-label"><i class="fas fa-note-sticky"></i>Maintenance Note</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-pen-to-square"></i>
+                        {{ form.maintenance_other_note|add_class:"form-input" }}
                     </div>
                 </div>
             </div>
@@ -384,6 +385,13 @@
                             {{ form.reason|add_class:"form-input" }}
                         </div>
                     </div>
+                    <div id="expected-price-field" class="field-group hidden">
+                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-tags" style="color:#FF4757;"></i>Expected Price (SAR)</div>
+                        <div class="field-icon-wrap">
+                            <i class="field-icon fas fa-saudi-riyal" style="color:#FF4757;opacity:1;"></i>
+                            {{ form.expected_price|add_class:"form-input" }}
+                        </div>
+                    </div>
                     <div id="fail-note-field" class="field-group hidden">
                         <div class="field-label" style="color:#7a5a00;"><i class="fas fa-note-sticky" style="color:#FFB347;"></i>Note</div>
                         <div class="field-icon-wrap">
@@ -490,45 +498,113 @@ $('#id_vehicle_brand').on('change', function() {
 });
 
     /* ─── Customer Type Sections ─── */
-    function toggleCustomerSections() {
-        var txt = $('#id_customer_type option:selected').text().toLowerCase();
-        $('#wholesale-section, #individual-company-section, #maintenance-type-section').addClass('hidden');
+var SUBTYPE_OPTIONS = {
+    'with installation':    [{v:'individual',label:'Individual'},{v:'shop',label:'Shop'}],
+    'without installation': null,   // no subtype shown, individual implied
+    'maintenance':          [{v:'individual',label:'Individual'},{v:'shop',label:'Shop'}],
+    // wholesale handled separately
+};
 
-        if (txt.includes('wholesale')) {
-            $('#wholesale-section').removeClass('hidden');
-        } else if (txt.includes('with installation') || txt.includes('without installation')) {
-            $('#individual-company-section').removeClass('hidden');
-        } else if (txt.includes('maintenance')) {
-            $('#individual-company-section').removeClass('hidden');
-            $('#maintenance-type-section').removeClass('hidden');
-        }
+function toggleCustomerSections() {
+    // $('#subtype-select').prop('disabled', false); #to reset the subtype
+    var txt = $('#id_customer_type option:selected').text().toLowerCase();
+
+    // Hide all conditional sections first
+    $('#wholesale-section, #individual-company-section, #maintenance-type-section').addClass('hidden');
+    // Return the shop field to its home in wholesale grid and hide it
+    if (!$.contains($('#wholesale-section')[0], $('#wholesale-shop-field')[0])) {
+        $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
+    }
+    $('#wholesale-shop-field, #maintenance-other-note-field').addClass('hidden');
+    $('#subtype-select').val('').empty().append('<option value="">Select type</option>');
+
+    if (txt.includes('wholesale')) {
+        $('#wholesale-section').removeClass('hidden');
+
+    } else if (txt.includes('without installation')) {
+    // Individual implied — show section with individual pre-selected, no further fields
+    $('#subtype-select').append('<option value="individual">Individual</option>');
+    $('#individual-company-section').removeClass('hidden');
+    $('#subtype-select').val('individual').trigger('change');
+    // Re-init select2
+    if ($('#subtype-select').data('select2')) $('#subtype-select').select2('destroy');
+    initSelect2('#subtype-select', 'Choose sub-type');
+
+
+    } else if (txt.includes('with installation')) {
+        // Subtype: Individual or Shop
+        $('#subtype-select').append(
+            '<option value="individual">Individual</option>',
+            '<option value="shop">Shop</option>'
+        );
+        $('#individual-company-section').removeClass('hidden');
+
+    } else if (txt.includes('maintenance')) {
+        // Subtype: Individual or Shop
+        $('#subtype-select').append(
+            '<option value="individual">Individual</option>',
+            '<option value="shop">Shop</option>'
+        );
+        $('#individual-company-section').removeClass('hidden');
+        $('#maintenance-type-section').removeClass('hidden');
     }
 
-    $('#id_customer_type').on('change', toggleCustomerSections);
+    // Re-init select2 on subtype after options change
+    if ($('#subtype-select').data('select2')) $('#subtype-select').select2('destroy');
+    initSelect2('#subtype-select', 'Choose sub-type');
+}
 
-    /* ─── Subtype Select ─── */
-    $('#subtype-select').on('change', function () {
-        var val = $(this).val();
-        $('#individual-name-field, #company-name-field').addClass('hidden');
-        $('#id_individual_name, #id_company_name').val('');
-        if (val === 'individual') $('#individual-name-field').removeClass('hidden');
-        else if (val === 'company') $('#company-name-field').removeClass('hidden');
-    });
+$('#id_customer_type').on('change', toggleCustomerSections);
 
-    /* ─── Wholesale Sub-type ─── */
-    $('#id_wholesale_customer_type').on('change', function () {
+/* ─── Subtype Select (with installation / maintenance) ─── */
+$('#subtype-select').on('change', function () {
+    var val = $(this).val();
+    $('#id_wholesale_shop').val(null).trigger('change');
+
+    if (val === 'shop') {
+        // Move the ONE real #wholesale-shop-field into the shared placeholder and show it
+        $('#shared-shop-placeholder').append($('#wholesale-shop-field'));
+        $('#wholesale-shop-field').removeClass('hidden');
+    } else {
+        // Move it back into the wholesale grid and hide it
+        $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
+        $('#wholesale-shop-field').addClass('hidden');
+    }
+});
+
+/* ─── Wholesale Sub-type ─── */
+$('#id_wholesale_customer_type').on('change', function () {
     var txt = $(this).find('option:selected').text().toLowerCase();
-    $('#wholesale-individual-field, #wholesale-company-field').addClass('hidden');
-    if (txt.includes('individual')) $('#wholesale-individual-field').removeClass('hidden');
+
+    // Ensure shop field is back in wholesale grid before toggling visibility
+    if (!$.contains($('#wholesale-section')[0], $('#wholesale-shop-field')[0])) {
+        $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
+    }
+
+    $('#wholesale-shop-field, #wholesale-company-field').addClass('hidden');
+    $('#id_wholesale_shop').val(null).trigger('change');
+
+    if (txt.includes('shop') || txt.includes('individual')) $('#wholesale-shop-field').removeClass('hidden');
     else if (txt.includes('company')) $('#wholesale-company-field').removeClass('hidden');
 });
 
     /* ─── Fail Reason Note ─── */
     $('#id_reason').on('change', function () {
         var txt = $(this).find('option:selected').text().toLowerCase();
-        var showNote = txt.includes('price high') || txt.includes('not available') || txt.includes('other');
+        var isPriceHigh = txt.includes('price high');
+        var showNote = isPriceHigh || txt.includes('not available') || txt.includes('other') || txt.includes('payment issue');
+        $('#expected-price-field').toggleClass('hidden', !isPriceHigh);
+        if (!isPriceHigh) $('#id_expected_price').val('');
         $('#fail-note-field').toggleClass('hidden', !showNote);
         if (!showNote) $('#id_note').val('');
+    });
+
+    /* ─── Maintenance Type Other Note ─── */
+    $('#id_maintenance_type').on('change', function () {
+        var txt = $(this).find('option:selected').text().toLowerCase();
+        var isOther = txt.includes('other');
+        $('#maintenance-other-note-field').toggleClass('hidden', !isOther);
+        if (!isOther) $('#id_maintenance_other_note').val('');
     });
 
     /* ─── Outcome Tabs ─── */
