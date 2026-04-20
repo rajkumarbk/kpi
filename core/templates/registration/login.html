@@ -1,47 +1,204 @@
-{% extends 'core/base.html' %}
-{% load widget_tweaks %}
 {% load static %}
-{% block title %}Login{% endblock %}
-{% block content %}
-<div class="min-h-screen flex items-center justify-center">
-    <div class="glass-card w-full max-w-md p-8" data-aos="fade-up">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Twenty Three</title>
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6C47FF;
+            --primary-light: #8B6BFF;
+            --border: rgba(108, 71, 255, 0.12);
+            --surface: #FFFFFF;
+            --surface-2: #F7F7FC;
+            --text-primary: #1A1535;
+            --text-secondary: #6B6889;
+            --text-muted: #A09EC0;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-md: 0 8px 32px rgba(108, 71, 255, 0.12);
+        }
+        
+        * {
+            font-family: 'DM Sans', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        body {
+            background-color: #F4F3FB;
+            background-image:
+                linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+                linear-gradient(to bottom, #e5e7eb 1px, transparent 1px),
+                radial-gradient(ellipse 80% 60% at 10% 10%, rgba(108, 71, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 90% 80%, rgba(0, 201, 167, 0.05) 0%, transparent 60%);
+            background-size: 30px 30px, 30px 30px, auto, auto;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .glass-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            width: 100%;
+            max-width: 420px;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 60%, #00C9A7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .field-group {
+            position: relative;
+        }
+        
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.45rem;
+        }
+        
+        .field-label i {
+            font-size: 0.75rem;
+            color: var(--primary);
+            width: 14px;
+            text-align: center;
+        }
+        
+        .field-icon-wrap {
+            position: relative;
+        }
+        
+        .field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 0.9rem;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            border: 1.5px solid #E4E2F0;
+            border-radius: var(--radius-md);
+            background: var(--surface-2);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(108, 71, 255, 0.08);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 0.85rem 1.75rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(108, 71, 255, 0.18);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(108, 71, 255, 0.35);
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-card" data-aos="fade-up">
         <div class="text-center mb-8">
             <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-chart-line text-white text-2xl"></i>
             </div>
-            <h2 class="text-2xl font-bold gradient-text">Welcome Back</h2>
+            <h2 class="text-2xl font-bold gradient-text">Welcome</h2>
             <p class="text-gray-500 text-sm mt-1">Sign in to continue</p>
         </div>
         
-        <form method="post" class="space-y-6">
-    {% csrf_token %}
-    
-    <div class="field-group">
-        <div class="field-label"><i class="fas fa-user"></i>Username</div>
-        <div class="field-icon-wrap">
-            <i class="field-icon fas fa-user-circle"></i>
-            <input type="text" name="username" class="form-input" placeholder="Username" required>
-        </div>
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            
+            <div class="field-group">
+                <div class="field-label"><i class="fas fa-user"></i>Username</div>
+                <div class="field-icon-wrap">
+                    <i class="field-icon fas fa-user-circle"></i>
+                    <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+                </div>
+            </div>
+            
+            <div class="field-group">
+                <div class="field-label"><i class="fas fa-lock"></i>Password</div>
+                <div class="field-icon-wrap">
+                    <i class="field-icon fas fa-key"></i>
+                    <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                </div>
+            </div>
+            
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
     </div>
     
-    <div class="field-group">
-        <div class="field-label"><i class="fas fa-lock"></i>Password</div>
-        <div class="field-icon-wrap">
-            <i class="field-icon fas fa-key"></i>
-            <input type="password" name="password" class="form-input" placeholder="Password" required>
-        </div>
-    </div>
-    
-    {% if error %}
-    <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-        <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
-    </div>
-    {% endif %}
-    
-    <button type="submit" class="btn-primary w-full justify-center py-3">
-        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
-    </button>
-</form>
-    </div>
-</div>
-{% endblock %}
+    <script>
+        AOS.init({ duration: 700, once: true });
+    </script>
+</body>
+</html>

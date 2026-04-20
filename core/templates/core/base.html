@@ -1,10 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AlSalem Auto Glass | KPI {% endblock %}</title>
+    <title>{% block title %}Twenty Three | KPI {% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -43,16 +45,18 @@
         * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
 
         body {
-            background-color: #F4F3FB;
-            background-image:
-                radial-gradient(ellipse 80% 60% at 10% 10%, rgba(108, 71, 255, 0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 90% 80%, rgba(0, 201, 167, 0.05) 0%, transparent 60%),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1' fill='rgba(108,71,255,0.06)'/%3E%3C/svg%3E");
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            color: var(--text-primary);
-        }
+        background-color: #F4F3FB;
+        background-image:
+            linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+            linear-gradient(to bottom, #e5e7eb 1px, transparent 1px),
+            radial-gradient(ellipse 80% 60% at 10% 10%, rgba(108, 71, 255, 0.06) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 90% 80%, rgba(0, 201, 167, 0.05) 0%, transparent 60%);
+        background-size: 30px 30px, 30px 30px, auto, auto;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        color: var(--text-primary);
+    }
 
         /* ─── Layout ─── */
         .content-wrapper { position: relative; z-index: 1; }

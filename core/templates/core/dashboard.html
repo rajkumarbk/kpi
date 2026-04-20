@@ -191,12 +191,12 @@
             <table class="w-full text-sm">
                 <thead class="border-b border-gray-200">
                     <tr>
-                        <th class="text-left py-3">ID</th>
-                        <th class="text-left py-3">Date</th>
-                        <th class="text-left py-3">Branch</th>
-                        <th class="text-left py-3">Customer Type</th>
-                        <th class="text-left py-3">Outcome</th>
-                        <th class="text-right py-3">Price</th>
+                        <th class="text-center py-3">ID</th>
+                        <th class="text-center py-3">Date</th>
+                        <th class="text-center py-3">Branch</th>
+                        <th class="text-center py-3">Customer Type</th>
+                        <th class="text-center py-3">Outcome</th>
+                        <th class="text-center py-3">Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -213,7 +213,7 @@
                                 <span class="text-red-600"><i class="fas fa-times-circle mr-1"></i>Failed</span>
                             {% endif %}
                         </td>
-                        <td class="py-3 text-right font-semibold">
+                        <td class="py-3 text-center font-semibold">
                             {% if trans.price %}SAR {{ trans.price }}{% else %}-{% endif %}
                         </td>
                     </tr>
@@ -234,6 +234,8 @@
 <style>
     table, td, th {
   border: 1px solid;
+  text-align: center;
+  align-items: center;
 }
 
 table {
