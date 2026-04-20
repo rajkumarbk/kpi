@@ -1,17 +1,15 @@
 {% extends 'core/base.html' %}
 {% load widget_tweaks %}
-
 {% block title %}New Transaction{% endblock %}
-
 {% block content %}
+
 <style>
-    /* ─── Form Page Specifics ─── */
     @media (min-width: 1024px) {
-    .form-page-wrap {
-        max-width: 100%;
-        padding: 0 2rem;
+        .form-page-wrap {
+            max-width: 100%;
+            padding: 0 2rem;
+        }
     }
-}
 
     .form-hero {
         display: flex;
@@ -34,7 +32,10 @@
         flex-shrink: 0;
     }
 
-    .form-hero-icon i { color: white; font-size: 1.2rem; }
+    .form-hero-icon i {
+        color: white;
+        font-size: 1.2rem;
+    }
 
     .form-hero-text h2 {
         font-size: 1.6rem;
@@ -50,7 +51,6 @@
         font-weight: 400;
     }
 
-    /* Grid Helpers */
     .field-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -64,27 +64,48 @@
     }
 
     @media (max-width: 640px) {
-        .field-grid-2, .field-grid-3 { grid-template-columns: 1fr; }
-        .form-page-wrap { padding: 0 0.25rem; }
-        .outcome-tabs { flex-direction: column; }
-        .form-footer { flex-direction: column-reverse; width: 100%; }
+
+        .field-grid-2,
+        .field-grid-3 {
+            grid-template-columns: 1fr;
+        }
+
+        .form-page-wrap {
+            padding: 0 0.25rem;
+        }
+
+        .outcome-tabs {
+            flex-direction: column;
+        }
+
+        .form-footer {
+            flex-direction: column-reverse;
+            width: 100%;
+        }
+
         .form-footer .btn-primary,
-        .form-footer .btn-secondary { width: 100%; justify-content: center; }
-        .form-panel { padding: 1rem; }
+        .form-footer .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .form-panel {
+            padding: 1rem;
+        }
     }
 
     @media (min-width: 641px) and (max-width: 900px) {
-        .field-grid-3 { grid-template-columns: 1fr 1fr; }
+        .field-grid-3 {
+            grid-template-columns: 1fr 1fr;
+        }
     }
 
-    /* Divider */
     .form-divider {
         height: 1px;
         background: linear-gradient(90deg, transparent, var(--border), transparent);
         margin: 1.75rem 0;
     }
 
-    /* Outcome Tabs */
     .outcome-tabs {
         display: flex;
         gap: 0.5rem;
@@ -109,16 +130,28 @@
         user-select: none;
     }
 
-    .outcome-tab:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
-    .outcome-tab.active-success { border-color: #00C9A7; color: #0a6654; background: rgba(0,201,167,0.08); }
-    .outcome-tab.active-fail { border-color: #FF4757; color: #7a1c24; background: rgba(255,71,87,0.06); }
+    .outcome-tab:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-subtle);
+    }
 
-    /* Outcome badge in select */
+    .outcome-tab.active-success {
+        border-color: #00C9A7;
+        color: #0a6654;
+        background: rgba(0, 201, 167, 0.08);
+    }
+
+    .outcome-tab.active-fail {
+        border-color: #FF4757;
+        color: #7a1c24;
+        background: rgba(255, 71, 87, 0.06);
+    }
+
     #outcome-display-area {
         margin-bottom: 0.75rem;
     }
 
-    /* Sub-form panels */
     .form-panel {
         background: var(--surface-2);
         border: 1px solid var(--border);
@@ -128,16 +161,15 @@
     }
 
     .form-panel.panel-danger {
-        background: rgba(255,71,87,0.03);
-        border-color: rgba(255,71,87,0.15);
+        background: rgba(255, 71, 87, 0.03);
+        border-color: rgba(255, 71, 87, 0.15);
     }
 
     .form-panel.panel-success {
-        background: rgba(0,201,167,0.03);
-        border-color: rgba(0,201,167,0.2);
+        background: rgba(0, 201, 167, 0.03);
+        border-color: rgba(0, 201, 167, 0.2);
     }
 
-    /* Footer */
     .form-footer {
         display: flex;
         justify-content: flex-end;
@@ -148,13 +180,13 @@
         border-top: 1px solid var(--border);
     }
 
-    /* Select2 icon offset fix — select2 replaces the <select> visually */
     .select2-icon-wrap .select2-container .select2-selection__rendered {
         padding-left: 2.5rem !important;
     }
 
-    /* Hidden utility */
-    .hidden { display: none !important; }
+    .hidden {
+        display: none !important;
+    }
 </style>
 
 <div class="form-page-wrap" data-aos="fade-up">
@@ -207,7 +239,7 @@
                     <span>Wholesale Details</span>
                 </div> -->
                 <div class="form-panel">
-                    <div class="field-grid-2">  
+                    <div class="field-grid-2">
                         <div class="field-group">
                             <div class="field-label"><i class="fas fa-layer-group"></i>Customer Sub-type</div>
                             <div class="field-icon-wrap select2-icon-wrap">
@@ -241,24 +273,24 @@
             </div>
 
             <!-- ─── DYNAMIC: Individual / Company ─── -->
-<div id="individual-company-section" class="hidden" style="margin-top:1.5rem;">
-    <div class="form-panel">
-        <div class="field-grid-2">
-            <div class="field-group" id="subtype-select-wrapper">
-                <div class="field-label"><i class="fas fa-id-badge"></i>Customer Sub-type</div>
-                <div class="field-icon-wrap">
-                    <i class="field-icon fas fa-id-badge"></i>
-                    <select id="subtype-select" class="form-input">
-                        <option value="">Select type</option>
-                        <!-- options injected by JS based on customer type -->
-                    </select>
+            <div id="individual-company-section" class="hidden" style="margin-top:1.5rem;">
+                <div class="form-panel">
+                    <div class="field-grid-2">
+                        <div class="field-group" id="subtype-select-wrapper">
+                            <div class="field-label"><i class="fas fa-id-badge"></i>Customer Sub-type</div>
+                            <div class="field-icon-wrap">
+                                <i class="field-icon fas fa-id-badge"></i>
+                                <select id="subtype-select" class="form-input">
+                                    <option value="">Select type</option>
+                                    <!-- options injected by JS based on customer type -->
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Placeholder: real #wholesale-shop-field is moved here by JS when subtype=shop -->
+                        <div id="shared-shop-placeholder"></div>
+                    </div>
                 </div>
             </div>
-            <!-- Placeholder: real #wholesale-shop-field is moved here by JS when subtype=shop -->
-            <div id="shared-shop-placeholder"></div>
-        </div>
-    </div>
-</div>
 
             <!-- ─── DYNAMIC: Maintenance Type ─── -->
             <div id="maintenance-type-section" class="hidden" style="margin-top:1.25rem;">
@@ -381,21 +413,24 @@
             <div id="fail-fields" class="hidden form-panel panel-danger">
                 <div class="field-grid-2">
                     <div class="field-group">
-                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-triangle-exclamation" style="color:#FF4757;"></i>Failure Reason</div>
+                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-triangle-exclamation"
+                                style="color:#FF4757;"></i>Failure Reason</div>
                         <div class="field-icon-wrap select2-icon-wrap">
                             <i class="field-icon fas fa-circle-exclamation" style="color:#FF4757;"></i>
                             {{ form.reason|add_class:"form-input" }}
                         </div>
                     </div>
                     <div id="expected-price-field" class="field-group hidden">
-                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-tags" style="color:#FF4757;"></i>Expected Price (SAR)</div>
+                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-tags"
+                                style="color:#FF4757;"></i>Expected Price (SAR)</div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-saudi-riyal" style="color:#FF4757;opacity:1;"></i>
                             {{ form.expected_price|add_class:"form-input" }}
                         </div>
                     </div>
                     <div id="fail-note-field" class="field-group hidden">
-                        <div class="field-label" style="color:#7a5a00;"><i class="fas fa-note-sticky" style="color:#FFB347;"></i>Note</div>
+                        <div class="field-label" style="color:#7a5a00;"><i class="fas fa-note-sticky"
+                                style="color:#FFB347;"></i>Note</div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-pen" style="color:#FFB347;opacity:1;"></i>
                             {{ form.note|add_class:"form-input" }}
@@ -404,14 +439,14 @@
                 </div>
             </div>
             <div class="form-divider"></div>
-                <!-- Customer Source -->
-                <div class="field-group">
-                    <div class="field-label"><i class="fas fa-bullhorn"></i>Customer Source</div>
-                    <div class="field-icon-wrap select2-icon-wrap">
-                        <i class="field-icon fas fa-satellite-dish"></i>
-                        {{ form.customer_source|add_class:"form-input" }}
-                    </div>
+            <!-- Customer Source -->
+            <div class="field-group">
+                <div class="field-label"><i class="fas fa-bullhorn"></i>Customer Source</div>
+                <div class="field-icon-wrap select2-icon-wrap">
+                    <i class="field-icon fas fa-satellite-dish"></i>
+                    {{ form.customer_source|add_class:"form-input" }}
                 </div>
+            </div>
             <!-- ─── Footer ─── -->
             <div class="form-footer">
                 <a href="{% url 'core:dashboard' %}" class="btn-secondary">
@@ -426,225 +461,225 @@
 </div>
 
 <script>
-$(document).ready(function () {
+    $(document).ready(function () {
 
-    /* ─── Select2 Init ─── */
-    function initSelect2(selector, placeholder) {
-        $(selector).select2({
-            theme: 'classic',
-            placeholder: placeholder || 'Choose',
-            allowClear: true,
-            width: '100%'
-        });
-    }
-
-    initSelect2('#id_branch', 'Select branch');
-    initSelect2('#id_customer_type', 'Select type');
-    initSelect2('#id_customer_source', 'Select source');
-    initSelect2('#id_wholesale_customer_type', 'Select sub-type');
-    initSelect2('#id_wholesale_company', 'Select company');
-    initSelect2('#id_wholesale_shop', 'Select shop');
-    initSelect2('#id_maintenance_type', 'Select type');
-    initSelect2('#id_vehicle_brand', 'Select brand');
-    initSelect2('#id_vehicle_model', 'Select model');
-    initSelect2('#id_glass_position', 'Select position');
-    initSelect2('#id_reason', 'Select reason');
-    initSelect2('#subtype-select', 'Choose sub-type');
-
-    /* ─── Vehicle Model AJAX ─── */
-    $('#id_vehicle_model').prop('disabled', true);
-
-    $('#id_vehicle_brand').on('change', function () {
-        var brandId = $(this).val();
-        var modelSelect = $('#id_vehicle_model');
-
-        if (!brandId) {
-            modelSelect.prop('disabled', true).empty().append('<option value="">Select brand first</option>').trigger('change');
-            return;
+        /* ─── Select2 Init ─── */
+        function initSelect2(selector, placeholder) {
+            $(selector).select2({
+                theme: 'classic',
+                placeholder: placeholder || 'Choose',
+                allowClear: true,
+                width: '100%'
+            });
         }
 
-        modelSelect.prop('disabled', true).empty().append('<option value="">Loading…</option>');
+        initSelect2('#id_branch', 'Select branch');
+        initSelect2('#id_customer_type', 'Select type');
+        initSelect2('#id_customer_source', 'Select source');
+        initSelect2('#id_wholesale_customer_type', 'Select sub-type');
+        initSelect2('#id_wholesale_company', 'Select company');
+        initSelect2('#id_wholesale_shop', 'Select shop');
+        initSelect2('#id_maintenance_type', 'Select type');
+        initSelect2('#id_vehicle_brand', 'Select brand');
+        initSelect2('#id_vehicle_model', 'Select model');
+        initSelect2('#id_glass_position', 'Select position');
+        initSelect2('#id_reason', 'Select reason');
+        initSelect2('#subtype-select', 'Choose sub-type');
 
-        $.ajax({
-            url: "{% url 'core:ajax_load_models' %}",
-            data: { 'brand': brandId },
-            success: function (data) {
-                modelSelect.empty();
-                if (!data.length) {
-                    modelSelect.append('<option value="">No models found</option>');
-                } else {
-                    modelSelect.append('<option value="">Select model</option>');
-                    $.each(data, function (i, m) {
-                        modelSelect.append($('<option>', { value: m.id, text: m.name }));
-                    });
+        /* ─── Vehicle Model AJAX ─── */
+        $('#id_vehicle_model').prop('disabled', true);
+
+        $('#id_vehicle_brand').on('change', function () {
+            var brandId = $(this).val();
+            var modelSelect = $('#id_vehicle_model');
+
+            if (!brandId) {
+                modelSelect.prop('disabled', true).empty().append('<option value="">Select brand first</option>').trigger('change');
+                return;
+            }
+
+            modelSelect.prop('disabled', true).empty().append('<option value="">Loading…</option>');
+
+            $.ajax({
+                url: "{% url 'core:ajax_load_models' %}",
+                data: { 'brand': brandId },
+                success: function (data) {
+                    modelSelect.empty();
+                    if (!data.length) {
+                        modelSelect.append('<option value="">No models found</option>');
+                    } else {
+                        modelSelect.append('<option value="">Select model</option>');
+                        $.each(data, function (i, m) {
+                            modelSelect.append($('<option>', { value: m.id, text: m.name }));
+                        });
+                    }
+                    modelSelect.prop('disabled', false).trigger('change');
                 }
-                modelSelect.prop('disabled', false).trigger('change');
+            });
+        });
+        // Disable year initially
+        $('#id_manufacture_year').prop('disabled', true);
+
+        // Enable year only when model is selected
+        $('#id_vehicle_model').on('change', function () {
+            if ($(this).val()) {
+                $('#id_manufacture_year').prop('disabled', false);
+            } else {
+                $('#id_manufacture_year').prop('disabled', true);
             }
         });
-    });
-    // Disable year initially
-$('#id_manufacture_year').prop('disabled', true);
 
-// Enable year only when model is selected
-$('#id_vehicle_model').on('change', function() {
-    if ($(this).val()) {
-        $('#id_manufacture_year').prop('disabled', false);
-    } else {
-        $('#id_manufacture_year').prop('disabled', true);
-    }
-});
+        // Disable year when brand changes
+        $('#id_vehicle_brand').on('change', function () {
+            $('#id_manufacture_year').prop('disabled', true).val('').trigger('change');
+        });
 
-// Disable year when brand changes
-$('#id_vehicle_brand').on('change', function() {
-    $('#id_manufacture_year').prop('disabled', true).val('').trigger('change');
-});
+        /* ─── Customer Type Sections ─── */
+        var SUBTYPE_OPTIONS = {
+            'with installation': [{ v: 'individual', label: 'Individual' }, { v: 'shop', label: 'Shop' }],
+            'without installation': null,   // no subtype shown, individual implied
+            'maintenance': [{ v: 'individual', label: 'Individual' }, { v: 'shop', label: 'Shop' }],
+            // wholesale handled separately
+        };
 
-    /* ─── Customer Type Sections ─── */
-var SUBTYPE_OPTIONS = {
-    'with installation':    [{v:'individual',label:'Individual'},{v:'shop',label:'Shop'}],
-    'without installation': null,   // no subtype shown, individual implied
-    'maintenance':          [{v:'individual',label:'Individual'},{v:'shop',label:'Shop'}],
-    // wholesale handled separately
-};
+        function toggleCustomerSections() {
+            // $('#subtype-select').prop('disabled', false); #to reset the subtype
+            var txt = $('#id_customer_type option:selected').text().toLowerCase();
 
-function toggleCustomerSections() {
-    // $('#subtype-select').prop('disabled', false); #to reset the subtype
-    var txt = $('#id_customer_type option:selected').text().toLowerCase();
+            // Hide all conditional sections first
+            $('#wholesale-section, #individual-company-section, #maintenance-type-section').addClass('hidden');
+            // Return the shop field to its home in wholesale grid and hide it
+            if (!$.contains($('#wholesale-section')[0], $('#wholesale-shop-field')[0])) {
+                $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
+            }
+            $('#wholesale-shop-field, #maintenance-other-note-field').addClass('hidden');
+            $('#subtype-select').val('').empty().append('<option value="">Select type</option>');
 
-    // Hide all conditional sections first
-    $('#wholesale-section, #individual-company-section, #maintenance-type-section').addClass('hidden');
-    // Return the shop field to its home in wholesale grid and hide it
-    if (!$.contains($('#wholesale-section')[0], $('#wholesale-shop-field')[0])) {
-        $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
-    }
-    $('#wholesale-shop-field, #maintenance-other-note-field').addClass('hidden');
-    $('#subtype-select').val('').empty().append('<option value="">Select type</option>');
+            if (txt.includes('wholesale')) {
+                $('#wholesale-section').removeClass('hidden');
 
-    if (txt.includes('wholesale')) {
-        $('#wholesale-section').removeClass('hidden');
-
-    } else if (txt.includes('without installation')) {
-    // Individual implied — show section with individual pre-selected, no further fields
-    $('#subtype-select').append('<option value="individual">Individual</option>');
-    $('#individual-company-section').removeClass('hidden');
-    $('#subtype-select').val('individual').trigger('change');
-    // Re-init select2
-    if ($('#subtype-select').data('select2')) $('#subtype-select').select2('destroy');
-    initSelect2('#subtype-select', 'Choose sub-type');
+            } else if (txt.includes('without installation')) {
+                // Individual implied — show section with individual pre-selected, no further fields
+                $('#subtype-select').append('<option value="individual">Individual</option>');
+                $('#individual-company-section').removeClass('hidden');
+                $('#subtype-select').val('individual').trigger('change');
+                // Re-init select2
+                if ($('#subtype-select').data('select2')) $('#subtype-select').select2('destroy');
+                initSelect2('#subtype-select', 'Choose sub-type');
 
 
-    } else if (txt.includes('with installation')) {
-        // Subtype: Individual or Shop
-        $('#subtype-select').append(
-            '<option value="individual">Individual</option>',
-            '<option value="shop">Shop</option>'
-        );
-        $('#individual-company-section').removeClass('hidden');
+            } else if (txt.includes('with installation')) {
+                // Subtype: Individual or Shop
+                $('#subtype-select').append(
+                    '<option value="individual">Individual</option>',
+                    '<option value="shop">Shop</option>'
+                );
+                $('#individual-company-section').removeClass('hidden');
 
-    } else if (txt.includes('maintenance')) {
-        // Subtype: Individual or Shop
-        $('#subtype-select').append(
-            '<option value="individual">Individual</option>',
-            '<option value="shop">Shop</option>'
-        );
-        $('#individual-company-section').removeClass('hidden');
-        $('#maintenance-type-section').removeClass('hidden');
-    }
+            } else if (txt.includes('maintenance')) {
+                // Subtype: Individual or Shop
+                $('#subtype-select').append(
+                    '<option value="individual">Individual</option>',
+                    '<option value="shop">Shop</option>'
+                );
+                $('#individual-company-section').removeClass('hidden');
+                $('#maintenance-type-section').removeClass('hidden');
+            }
 
-    // Re-init select2 on subtype after options change
-    if ($('#subtype-select').data('select2')) $('#subtype-select').select2('destroy');
-    initSelect2('#subtype-select', 'Choose sub-type');
-}
-
-$('#id_customer_type').on('change', toggleCustomerSections);
-
-/* ─── Subtype Select (with installation / maintenance) ─── */
-$('#subtype-select').on('change', function () {
-    var val = $(this).val();
-    $('#id_wholesale_shop').val(null).trigger('change');
-
-    if (val === 'shop') {
-        // Move the ONE real #wholesale-shop-field into the shared placeholder and show it
-        $('#shared-shop-placeholder').append($('#wholesale-shop-field'));
-        $('#wholesale-shop-field').removeClass('hidden');
-    } else {
-        // Move it back into the wholesale grid and hide it
-        $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
-        $('#wholesale-shop-field').addClass('hidden');
-    }
-});
-
-/* ─── Wholesale Sub-type ─── */
-$('#id_wholesale_customer_type').on('change', function () {
-    var txt = $(this).find('option:selected').text().toLowerCase();
-
-    // Ensure shop field is back in wholesale grid before toggling visibility
-    if (!$.contains($('#wholesale-section')[0], $('#wholesale-shop-field')[0])) {
-        $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
-    }
-
-    $('#wholesale-shop-field, #wholesale-company-field').addClass('hidden');
-    $('#id_wholesale_shop').val(null).trigger('change');
-
-    if (txt.includes('shop') || txt.includes('individual')) $('#wholesale-shop-field').removeClass('hidden');
-    else if (txt.includes('company')) $('#wholesale-company-field').removeClass('hidden');
-});
-
-    /* ─── Fail Reason Note ─── */
-    $('#id_reason').on('change', function () {
-        var txt = $(this).find('option:selected').text().toLowerCase();
-        var isPriceHigh = txt.includes('price high');
-        var showNote = isPriceHigh || txt.includes('not available') || txt.includes('other') || txt.includes('payment issue');
-        $('#expected-price-field').toggleClass('hidden', !isPriceHigh);
-        if (!isPriceHigh) $('#id_expected_price').val('');
-        $('#fail-note-field').toggleClass('hidden', !showNote);
-        if (!showNote) $('#id_note').val('');
-    });
-
-    /* ─── Maintenance Type Other Note ─── */
-    $('#id_maintenance_type').on('change', function () {
-        var txt = $(this).find('option:selected').text().toLowerCase();
-        var isOther = txt.includes('other');
-        $('#maintenance-other-note-field').toggleClass('hidden', !isOther);
-        if (!isOther) $('#id_maintenance_other_note').val('');
-    });
-
-    /* ─── Outcome Tabs ─── */
-    function toggleOutcome(val) {
-        // Update hidden Django field
-        $('#id_outcome').val(val).trigger('change');
-
-        // Update tab styles
-        $('.outcome-tab').removeClass('active-success active-fail');
-        if (val === 'success') {
-            $('#tab-success').addClass('active-success');
-            $('#success-fields').removeClass('hidden');
-            $('#fail-fields').addClass('hidden');
-        } else if (val === 'fail') {
-            $('#tab-fail').addClass('active-fail');
-            $('#fail-fields').removeClass('hidden');
-            $('#success-fields').addClass('hidden');
-
-            // Re-init Select2 on reason after panel becomes visible
-            setTimeout(function () {
-                if ($('#id_reason').data('select2')) $('#id_reason').select2('destroy');
-                initSelect2('#id_reason', 'Select reason');
-            }, 50);
-        } else {
-            $('#success-fields, #fail-fields').addClass('hidden');
+            // Re-init select2 on subtype after options change
+            if ($('#subtype-select').data('select2')) $('#subtype-select').select2('destroy');
+            initSelect2('#subtype-select', 'Choose sub-type');
         }
-    }
 
-    $('.outcome-tab').on('click', function () {
-        toggleOutcome($(this).data('value'));
+        $('#id_customer_type').on('change', toggleCustomerSections);
+
+        /* ─── Subtype Select (with installation / maintenance) ─── */
+        $('#subtype-select').on('change', function () {
+            var val = $(this).val();
+            $('#id_wholesale_shop').val(null).trigger('change');
+
+            if (val === 'shop') {
+                // Move the ONE real #wholesale-shop-field into the shared placeholder and show it
+                $('#shared-shop-placeholder').append($('#wholesale-shop-field'));
+                $('#wholesale-shop-field').removeClass('hidden');
+            } else {
+                // Move it back into the wholesale grid and hide it
+                $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
+                $('#wholesale-shop-field').addClass('hidden');
+            }
+        });
+
+        /* ─── Wholesale Sub-type ─── */
+        $('#id_wholesale_customer_type').on('change', function () {
+            var txt = $(this).find('option:selected').text().toLowerCase();
+
+            // Ensure shop field is back in wholesale grid before toggling visibility
+            if (!$.contains($('#wholesale-section')[0], $('#wholesale-shop-field')[0])) {
+                $('#wholesale-section .field-grid-2').append($('#wholesale-shop-field'));
+            }
+
+            $('#wholesale-shop-field, #wholesale-company-field').addClass('hidden');
+            $('#id_wholesale_shop').val(null).trigger('change');
+
+            if (txt.includes('shop') || txt.includes('individual')) $('#wholesale-shop-field').removeClass('hidden');
+            else if (txt.includes('company')) $('#wholesale-company-field').removeClass('hidden');
+        });
+
+        /* ─── Fail Reason Note ─── */
+        $('#id_reason').on('change', function () {
+            var txt = $(this).find('option:selected').text().toLowerCase();
+            var isPriceHigh = txt.includes('price high');
+            var showNote = isPriceHigh || txt.includes('not available') || txt.includes('other') || txt.includes('payment issue');
+            $('#expected-price-field').toggleClass('hidden', !isPriceHigh);
+            if (!isPriceHigh) $('#id_expected_price').val('');
+            $('#fail-note-field').toggleClass('hidden', !showNote);
+            if (!showNote) $('#id_note').val('');
+        });
+
+        /* ─── Maintenance Type Other Note ─── */
+        $('#id_maintenance_type').on('change', function () {
+            var txt = $(this).find('option:selected').text().toLowerCase();
+            var isOther = txt.includes('other');
+            $('#maintenance-other-note-field').toggleClass('hidden', !isOther);
+            if (!isOther) $('#id_maintenance_other_note').val('');
+        });
+
+        /* ─── Outcome Tabs ─── */
+        function toggleOutcome(val) {
+            // Update hidden Django field
+            $('#id_outcome').val(val).trigger('change');
+
+            // Update tab styles
+            $('.outcome-tab').removeClass('active-success active-fail');
+            if (val === 'success') {
+                $('#tab-success').addClass('active-success');
+                $('#success-fields').removeClass('hidden');
+                $('#fail-fields').addClass('hidden');
+            } else if (val === 'fail') {
+                $('#tab-fail').addClass('active-fail');
+                $('#fail-fields').removeClass('hidden');
+                $('#success-fields').addClass('hidden');
+
+                // Re-init Select2 on reason after panel becomes visible
+                setTimeout(function () {
+                    if ($('#id_reason').data('select2')) $('#id_reason').select2('destroy');
+                    initSelect2('#id_reason', 'Select reason');
+                }, 50);
+            } else {
+                $('#success-fields, #fail-fields').addClass('hidden');
+            }
+        }
+
+        $('.outcome-tab').on('click', function () {
+            toggleOutcome($(this).data('value'));
+        });
+
+        // Sync from hidden select if pre-filled (edit mode)
+        var preVal = $('#id_outcome').val();
+        if (preVal) toggleOutcome(preVal);
+
+        // Initial state
+        toggleCustomerSections();
     });
-
-    // Sync from hidden select if pre-filled (edit mode)
-    var preVal = $('#id_outcome').val();
-    if (preVal) toggleOutcome(preVal);
-
-    // Initial state
-    toggleCustomerSections();
-});
 </script>
 {% endblock %}

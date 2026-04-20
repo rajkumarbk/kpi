@@ -6,7 +6,12 @@
 {% block content %}
 <style>
     .list-page-wrap { max-width: 1200px; margin: 0 auto; }
-
+@media (min-width: 1024px) {
+    .list-page-wrap {
+        max-width: 100%;
+        padding: 0 2rem;
+    }
+}
     /* Page header */
     .page-hero {
         display: flex;
@@ -323,7 +328,9 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        {% if request.user.userprofile.role == 'admin' %}
+                        <th>S.N.</th>
+                        {% endif %}
                         <th>Date</th>
                         <th>Branch</th>
                         <th>Customer Type</th>
@@ -336,7 +343,9 @@
                 <tbody>
                     {% for transaction in transactions %}
                     <tr onclick="window.location='{% url 'core:transaction_detail' transaction.id %}'" style="cursor:pointer;">
+                        {% if request.user.userprofile.role == 'admin' %}
                         <td class="id-cell">#{{ transaction.id }}</td>
+                        {% endif %}
                         <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
                         <td>{{ transaction.branch.code }}</td>
                         <td><span class="badge badge-type">{{ transaction.customer_type.name }}</span></td>
