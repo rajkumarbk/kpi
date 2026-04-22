@@ -94,8 +94,6 @@
             </div>
         </div>
         
-        
-        
         <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center">
@@ -116,6 +114,7 @@
                 Out of {{ total }} total transactions
             </div>
         </div>
+        
         <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
@@ -162,13 +161,13 @@
             <canvas id="branchChart" width="300" height="200"></canvas>
         </div>
         
-        <!-- Customer Type Distribution -->
+        <!-- Business Model Distribution -->
         <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
             <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-users text-blue-500 mr-2"></i>
-                Customer Types
+                <i class="fas fa-chart-pie text-blue-500 mr-2"></i>
+                Business Models
             </h3>
-            <canvas id="customerTypeChart" width="300" height="200"></canvas>
+            <canvas id="businessModelChart" width="300" height="200"></canvas>
         </div>
         
         <!-- Top Failure Reasons -->
@@ -178,6 +177,57 @@
                 Top Failure Reasons
             </h3>
             <canvas id="reasonsChart" width="300" height="200"></canvas>
+        </div>
+    </div>
+    
+    <!-- Charts Row 3 - Business Model Subtypes -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Sales Type Distribution -->
+        <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-tags text-purple-500 mr-2"></i>
+                Sales Type Distribution
+            </h3>
+            <canvas id="salesTypeChart" width="300" height="200"></canvas>
+        </div>
+        
+        <!-- Parts & Maintenance Types -->
+        <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-puzzle-piece text-orange-500 mr-2"></i>
+                Parts & Maintenance Types
+            </h3>
+            <canvas id="partsMaintenanceChart" width="300" height="200"></canvas>
+        </div>
+        
+        <!-- Customer Source Distribution -->
+        <div class="glass-card p-6" data-aos="fade-up" data-aos-delay="300">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-bullhorn text-green-500 mr-2"></i>
+                Customer Sources
+            </h3>
+            <canvas id="customerSourceChart" width="300" height="200"></canvas>
+        </div>
+    </div>
+    
+    <!-- Charts Row 4 - B2B & Government Details -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- B2B Customer Types -->
+        <div class="glass-card p-6" data-aos="fade-up">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-handshake text-blue-500 mr-2"></i>
+                B2B Customer Breakdown
+            </h3>
+            <canvas id="b2bTypeChart" width="400" height="250"></canvas>
+        </div>
+        
+        <!-- Vehicle Brand Distribution -->
+        <div class="glass-card p-6" data-aos="fade-up">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-car text-indigo-500 mr-2"></i>
+                Top Vehicle Brands
+            </h3>
+            <canvas id="vehicleBrandChart" width="400" height="250"></canvas>
         </div>
     </div>
     
@@ -194,7 +244,8 @@
                         <th class="text-center py-3">ID</th>
                         <th class="text-center py-3">Date</th>
                         <th class="text-center py-3">Branch</th>
-                        <th class="text-center py-3">Customer Type</th>
+                        <th class="text-center py-3">Business Model</th>
+                        <th class="text-center py-3">Sales Type</th>
                         <th class="text-center py-3">Outcome</th>
                         <th class="text-center py-3">Price</th>
                     </tr>
@@ -205,7 +256,8 @@
                         <td class="py-3">#{{ trans.id }}</td>
                         <td class="py-3">{{ trans.created_at|date:"M d, H:i" }}</td>
                         <td class="py-3">{{ trans.branch.code }}</td>
-                        <td class="py-3">{{ trans.customer_type.name }}</td>
+                        <td class="py-3">{{ trans.business_model.name|default:"-" }}</td>
+                        <td class="py-3">{{ trans.sales_type.name|default:"-" }}</td>
                         <td class="py-3">
                             {% if trans.outcome == 'success' %}
                                 <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Success</span>
@@ -218,7 +270,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="py-8 text-center text-gray-400">No recent transactions</td></tr>
+                    <tr><td colspan="7" class="py-8 text-center text-gray-400">No recent transactions</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -233,44 +285,47 @@
 {% block extra_js %}
 <style>
     table, td, th {
-  border: 1px solid;
-  text-align: center;
-  align-items: center;
-}
+        border: 1px solid;
+        text-align: center;
+        align-items: center;
+    }
 
-table {
-  border-collapse: collapse;
-}
-@media (max-width: 640px) {
-    .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
-    .grid.grid-cols-1.lg\:grid-cols-2,
-    .grid.grid-cols-1.lg\:grid-cols-3 { grid-template-columns: 1fr !important; }
-    .overflow-x-auto table { min-width: 500px; }
-}
-@media (max-width: 400px) {
-    .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr !important; }
-}
-@media (max-width: 640px) {
-    form[method="get"] {
-        flex-wrap: wrap !important;
-        width: 100%;
+    table {
+        border-collapse: collapse;
     }
     
-    #customDateRange {
-        flex-wrap: wrap !important;
-        width: 100%;
-        white-space: normal !important;
+    @media (max-width: 640px) {
+        .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+        .grid.grid-cols-1.lg\:grid-cols-2,
+        .grid.grid-cols-1.lg\:grid-cols-3 { grid-template-columns: 1fr !important; }
+        .overflow-x-auto table { min-width: 600px; }
     }
     
-    #customDateRange input[type="date"] {
-        flex: 1 1 100% !important;
-        width: 100% !important;
+    @media (max-width: 400px) {
+        .grid.grid-cols-1.md\:grid-cols-4 { grid-template-columns: 1fr !important; }
     }
     
-    #customDateRange .btn-primary {
-        width: 100%;
+    @media (max-width: 640px) {
+        form[method="get"] {
+            flex-wrap: wrap !important;
+            width: 100%;
+        }
+        
+        #customDateRange {
+            flex-wrap: wrap !important;
+            width: 100%;
+            white-space: normal !important;
+        }
+        
+        #customDateRange input[type="date"] {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+        }
+        
+        #customDateRange .btn-primary {
+            width: 100%;
+        }
     }
-}
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -377,18 +432,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 4. Customer Type Chart
-    const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
-    const customerTypeLabels = {{ customer_type_labels|safe }};
-    const customerTypeData = {{ customer_type_data|safe }};
+    // 4. Business Model Chart
+    const businessModelCtx = document.getElementById('businessModelChart').getContext('2d');
+    const businessModelLabels = {{ business_model_labels|safe }};
+    const businessModelData = {{ business_model_data|safe }};
     
-    new Chart(customerTypeCtx, {
+    new Chart(businessModelCtx, {
         type: 'pie',
         data: {
-            labels: customerTypeLabels,
+            labels: businessModelLabels,
             datasets: [{
-                data: customerTypeData,
-                backgroundColor: ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'],
+                data: businessModelData,
+                backgroundColor: ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4'],
                 borderWidth: 0
             }]
         },
@@ -417,6 +472,156 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: 'Count',
                 data: reasonData,
                 backgroundColor: '#ef4444',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                }
+            }
+        }
+    });
+    
+    // 6. Sales Type Chart
+    const salesTypeCtx = document.getElementById('salesTypeChart').getContext('2d');
+    const salesTypeLabels = {{ sales_type_labels|safe }};
+    const salesTypeData = {{ sales_type_data|safe }};
+    
+    new Chart(salesTypeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: salesTypeLabels,
+            datasets: [{
+                data: salesTypeData,
+                backgroundColor: ['#8b5cf6', '#f59e0b', '#10b981'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 } }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+    
+    // 7. Parts & Maintenance Type Chart
+    const partsMaintenanceCtx = document.getElementById('partsMaintenanceChart').getContext('2d');
+    const partsMaintenanceLabels = {{ parts_maintenance_labels|safe }};
+    const partsMaintenanceData = {{ parts_maintenance_data|safe }};
+    
+    new Chart(partsMaintenanceCtx, {
+        type: 'bar',
+        data: {
+            labels: partsMaintenanceLabels,
+            datasets: [{
+                label: 'Count',
+                data: partsMaintenanceData,
+                backgroundColor: '#f59e0b',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                }
+            }
+        }
+    });
+    
+    // 8. Customer Source Chart
+    const customerSourceCtx = document.getElementById('customerSourceChart').getContext('2d');
+    const customerSourceLabels = {{ customer_source_labels|safe }};
+    const customerSourceData = {{ customer_source_data|safe }};
+    
+    new Chart(customerSourceCtx, {
+        type: 'pie',
+        data: {
+            labels: customerSourceLabels,
+            datasets: [{
+                data: customerSourceData,
+                backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#ec4899'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 } }
+                }
+            }
+        }
+    });
+    
+    // 9. B2B Type Chart
+    const b2bTypeCtx = document.getElementById('b2bTypeChart').getContext('2d');
+    const b2bTypeLabels = {{ b2b_type_labels|safe }};
+    const b2bTypeData = {{ b2b_type_data|safe }};
+    
+    new Chart(b2bTypeCtx, {
+        type: 'bar',
+        data: {
+            labels: b2bTypeLabels,
+            datasets: [{
+                label: 'Transactions',
+                data: b2bTypeData,
+                backgroundColor: '#3b82f6',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#e5e7eb' }
+                }
+            }
+        }
+    });
+    
+    // 10. Vehicle Brand Chart
+    const vehicleBrandCtx = document.getElementById('vehicleBrandChart').getContext('2d');
+    const vehicleBrandLabels = {{ vehicle_brand_labels|safe }};
+    const vehicleBrandData = {{ vehicle_brand_data|safe }};
+    
+    new Chart(vehicleBrandCtx, {
+        type: 'bar',
+        data: {
+            labels: vehicleBrandLabels,
+            datasets: [{
+                label: 'Count',
+                data: vehicleBrandData,
+                backgroundColor: '#6366f1',
                 borderRadius: 6
             }]
         },

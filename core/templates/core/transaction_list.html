@@ -5,174 +5,173 @@
 
 {% block content %}
 <style>
-    .list-page-wrap { max-width: 1200px; margin: 0 auto; }
-@media (min-width: 1024px) {
-    .list-page-wrap {
-        max-width: 100%;
-        padding: 0 2rem;
-    }
+    .list-page-wrap { width: 100%; }
+
+@media (max-width: 768px) {
+    .list-page-wrap { max-width: 100%; padding: 0 0.5rem; box-sizing: border-box; }
 }
-    /* Page header */
-    .page-hero {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-    }
-    .page-hero-left { display: flex; align-items: center; gap: 1rem; }
-    .page-hero-icon {
-        width: 52px; height: 52px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-        border-radius: var(--radius-md);
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 8px 24px var(--primary-glow);
-        flex-shrink: 0;
-    }
-    .page-hero-icon i { color: white; font-size: 1.2rem; }
-    .page-hero-text h2 { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.15rem; }
-    .page-hero-text p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
 
-    /* Filter card */
-    .filter-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1rem;
-    }
-    @media (max-width: 900px) { .filter-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 540px)  { .filter-grid { grid-template-columns: 1fr; } }
+/* Page header */
+.page-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+.page-hero-left { display: flex; align-items: center; gap: 1rem; }
+.page-hero-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px var(--primary-glow);
+    flex-shrink: 0;
+}
+.page-hero-icon i { color: white; font-size: 1.2rem; }
+.page-hero-text h2 { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.15rem; }
+.page-hero-text p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
 
-    .field-group { position: relative; }
-    .field-label {
-        display: flex; align-items: center; gap: 0.4rem;
-        font-size: 0.78rem; font-weight: 600;
-        color: var(--text-secondary);
-        text-transform: uppercase; letter-spacing: 0.06em;
-        margin-bottom: 0.4rem;
-    }
-    .field-label i { font-size: 0.72rem; color: var(--primary); width: 13px; text-align: center; }
-    .field-icon-wrap { position: relative; }
-    .field-icon-wrap .field-icon {
-        position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-        color: var(--primary); font-size: 0.78rem; z-index: 10;
-        pointer-events: none; opacity: 0.8;
-    }
+/* Filter card */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+}
+@media (max-width: 900px) { .filter-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px)  { .filter-grid { grid-template-columns: 1fr; } }
 
-    /* Filter footer */
-    .filter-footer {
-        grid-column: 1 / -1;
-        display: flex; justify-content: flex-end; align-items: center; gap: 0.6rem;
-        padding-top: 0.5rem;
-        border-top: 1px solid var(--border);
-        margin-top: 0.25rem;
-    }
+.field-group { position: relative; }
+.field-label {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+}
+.field-label i { font-size: 0.72rem; color: var(--primary); width: 13px; text-align: center; }
+.field-icon-wrap { position: relative; }
+.field-icon-wrap .field-icon {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    color: var(--primary); font-size: 0.78rem; z-index: 10;
+    pointer-events: none; opacity: 0.8;
+}
 
-    /* Stats */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 400px) { .stats-grid { grid-template-columns: 1fr; } }
+/* Filter footer */
+.filter-footer {
+    grid-column: 1 / -1;
+    display: flex; justify-content: flex-end; align-items: center; gap: 0.6rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.25rem;
+}
 
-    @media (max-width: 640px) {
-        .page-hero { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-        .page-hero .btn-primary { width: 100%; justify-content: center; }
-        .filter-grid { grid-template-columns: 1fr !important; }
-        .filter-footer { flex-direction: column; }
-        .filter-footer .btn-primary,
-        .filter-footer .btn-secondary { width: 100%; justify-content: center; }
-        .pagination-bar { flex-direction: column; gap: 0.75rem; text-align: center; }
-    }
+/* Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+@media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .stats-grid { grid-template-columns: 1fr; } }
 
-    .stat-card { padding: 1.1rem 1.25rem !important; }
-    .stat-icon {
-        width: 42px; height: 42px; border-radius: var(--radius-sm);
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-        font-size: 1rem;
-    }
-    .stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.2rem; }
-    .stat-value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+@media (max-width: 640px) {
+    .page-hero { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .page-hero .btn-primary { width: 100%; justify-content: center; }
+    .filter-grid { grid-template-columns: 1fr !important; }
+    .filter-footer { flex-direction: column; }
+    .filter-footer .btn-primary,
+    .filter-footer .btn-secondary { width: 100%; justify-content: center; }
+    .pagination-bar { flex-direction: column; gap: 0.75rem; text-align: center; }
+}
 
-    /* Table */
-    .table-wrap { overflow-x: auto; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr {
-        background: var(--surface-2);
-        border-bottom: 1.5px solid var(--border);
-    }
-    thead th {
-        padding: 0.7rem 1rem !important;
-        text-align: left;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        white-space: nowrap;
-    }
-    tbody tr {
-        border-bottom: 1px solid var(--border);
-        transition: background 0.15s ease;
-    }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: var(--primary-subtle); }
-    tbody td { padding: 0.7rem 1rem !important; font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap; }
-    tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+.stat-card { padding: 1.1rem 1.25rem !important; }
+.stat-icon {
+    width: 42px; height: 42px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+.stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.2rem; }
+.stat-value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
 
-    /* Badges */
-    .badge {
-        display: inline-flex; align-items: center; gap: 0.3rem;
-        padding: 0.25rem 0.7rem;
-        border-radius: 100px;
-        font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
-    }
-    .badge-type { background: var(--primary-subtle); color: var(--primary-dark); border: 1px solid rgba(108,71,255,0.15); }
-    .badge-success { background: rgba(0,201,167,0.1); color: #0a6654; border: 1px solid rgba(0,201,167,0.25); }
-    .badge-fail { background: rgba(255,71,87,0.08); color: #7a1c24; border: 1px solid rgba(255,71,87,0.2); }
+/* Table */
+.table-wrap { overflow-x: auto; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
+table { width: 100%; border-collapse: collapse; }
+thead tr {
+    background: var(--surface-2);
+    border-bottom: 1.5px solid var(--border);
+}
+thead th {
+    padding: 0.7rem 1rem !important;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+}
+tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s ease;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--primary-subtle); }
+tbody td { padding: 0.7rem 1rem !important; font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap; }
+tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
 
-    /* Price */
-    .price-val { font-weight: 600; color: #0a6654; font-size: 0.875rem; }
-    .price-nil { color: var(--text-muted); }
+/* Badges */
+.badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 100px;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em;
+}
+.badge-type { background: var(--primary-subtle); color: var(--primary-dark); border: 1px solid rgba(108,71,255,0.15); }
+.badge-success { background: rgba(0,201,167,0.1); color: #0a6654; border: 1px solid rgba(0,201,167,0.25); }
+.badge-fail { background: rgba(255,71,87,0.08); color: #7a1c24; border: 1px solid rgba(255,71,87,0.2); }
 
-    /* Action buttons */
-    .action-btn {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 30px; height: 30px;
-        border-radius: 8px; border: 1.5px solid var(--border);
-        background: var(--surface-2); color: var(--text-secondary);
-        font-size: 0.78rem; transition: all 0.2s ease;
-        text-decoration: none;
-    }
-    .action-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
-    .action-btn.edit:hover { border-color: #3B82F6; color: #3B82F6; background: rgba(59,130,246,0.07); }
+/* Price */
+.price-val { font-weight: 600; color: #0a6654; font-size: 0.875rem; }
+.price-nil { color: var(--text-muted); }
 
-    /* Empty state */
-    .empty-state { padding: 3.5rem 1rem; text-align: center; }
-    .empty-state i { font-size: 2.5rem; color: var(--text-muted); display: block; margin-bottom: 0.75rem; opacity: 0.5; }
-    .empty-state p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; }
+/* Action buttons */
+.action-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px;
+    border-radius: 8px; border: 1.5px solid var(--border);
+    background: var(--surface-2); color: var(--text-secondary);
+    font-size: 0.78rem; transition: all 0.2s ease;
+    text-decoration: none;
+}
+.action-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-subtle); }
+.action-btn.edit:hover { border-color: #3B82F6; color: #3B82F6; background: rgba(59,130,246,0.07); }
 
-    /* Pagination */
-    .pagination-bar {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0.875rem 1.25rem;
-        background: var(--surface-2);
-        border-top: 1px solid var(--border);
-        font-size: 0.82rem; color: var(--text-muted);
-        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-    }
-    .page-btn {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 32px; height: 32px; border-radius: 8px;
-        border: 1.5px solid var(--border); background: var(--surface);
-        color: var(--text-secondary); font-size: 0.8rem;
-        text-decoration: none; transition: all 0.2s ease;
-    }
-    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .page-btn.active { background: var(--primary); border-color: var(--primary); color: white; font-weight: 600; }
-    .page-btns { display: flex; gap: 0.3rem; }
+/* Empty state */
+.empty-state { padding: 3.5rem 1rem; text-align: center; }
+.empty-state i { font-size: 2.5rem; color: var(--text-muted); display: block; margin-bottom: 0.75rem; opacity: 0.5; }
+.empty-state p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem; }
+
+/* Pagination */
+.pagination-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    font-size: 0.82rem; color: var(--text-muted);
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+.page-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    color: var(--text-secondary); font-size: 0.8rem;
+    text-decoration: none; transition: all 0.2s ease;
+}
+.page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); border-color: var(--primary); color: white; font-weight: 600; }
+.page-btns { display: flex; gap: 0.3rem; }
 </style>
 
 <div class="list-page-wrap" data-aos="fade-up">
@@ -186,9 +185,9 @@
                 <p>View and manage all recorded transactions</p>
             </div>
         </div>
-        <a href="{% url 'core:add_transaction' %}" class="btn-primary">
+        <!-- <a href="{% url 'core:add_transaction' %}" class="btn-primary">
             <i class="fas fa-plus"></i>New Transaction
-        </a>
+        </a> -->
     </div>
 
     <!-- Filters -->
@@ -198,33 +197,33 @@
 
                 <!-- Branch -->
                 <div class="field-group">
-    <div class="field-label"><i class="fas fa-store-alt"></i>Branch</div>
-    <div class="field-icon-wrap">
-        <i class="field-icon fas fa-store-alt"></i>
-        {% if request.user.userprofile.role == 'admin' %}
-            <select name="branch" class="form-input" id="filter-branch">
-                <option value="">All Branches</option>
-                {% for branch in branches %}
-                    <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch }}</option>
-                {% endfor %}
-            </select>
-        {% else %}
-            <select name="branch" class="form-input" id="filter-branch" disabled style="background:#f3f4f6; cursor:not-allowed;">
-                <option value="{{ request.user.userprofile.branch.id }}" selected>{{ request.user.userprofile.branch }}</option>
-            </select>
-        {% endif %}
-    </div>
-</div>
+                <div class="field-label"><i class="fas fa-store-alt"></i>Branch</div>
+                <div class="field-icon-wrap">
+                    <i class="field-icon fas fa-store-alt"></i>
+                    {% if request.user.userprofile.role == 'admin' %}
+                        <select name="branch" class="form-input" id="filter-branch">
+                            <option value="">All Branches</option>
+                            {% for branch in branches %}
+                                <option value="{{ branch.id }}" {% if request.GET.branch == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <select name="branch" class="form-input" id="filter-branch" disabled style="background:#f3f4f6; cursor:not-allowed;">
+                            <option value="{{ request.user.userprofile.branch.id }}" selected>{{ request.user.userprofile.branch }}</option>
+                        </select>
+                    {% endif %}
+                </div>
+            </div>
 
-                <!-- Customer Type -->
+                <!-- Business Model -->
                 <div class="field-group">
-                    <div class="field-label"><i class="fas fa-user-tag"></i>Customer Type</div>
+                    <div class="field-label"><i class="fas fa-user-tag"></i>Business Model</div>
                     <div class="field-icon-wrap">
                         <i class="field-icon fas fa-user-tag"></i>
-                        <select name="customer_type" class="form-input" id="filter-ctype">
+                        <select name="business_model" class="form-input" id="filter-ctype">
                             <option value="">All Types</option>
-                            {% for type in customer_types %}
-                                <option value="{{ type.id }}" {% if request.GET.customer_type == type.id|stringformat:"s" %}selected{% endif %}>{{ type.name }}</option>
+                            {% for type in business_models %}
+                                <option value="{{ type.id }}" {% if request.GET.business_model == type.id|stringformat:"s" %}selected{% endif %}>{{ type.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -328,12 +327,10 @@
             <table>
                 <thead>
                     <tr>
-                        {% if request.user.userprofile.role == 'admin' %}
-                        <th>S.N.</th>
-                        {% endif %}
+                        <th>ID</th>
                         <th>Date</th>
                         <th>Branch</th>
-                        <th>Customer Type</th>
+                        <th>Business Model</th>
                         <th>Vehicle</th>
                         <th>Outcome</th>
                         <th>Price</th>
@@ -343,12 +340,10 @@
                 <tbody>
                     {% for transaction in transactions %}
                     <tr onclick="window.location='{% url 'core:transaction_detail' transaction.id %}'" style="cursor:pointer;">
-                        {% if request.user.userprofile.role == 'admin' %}
                         <td class="id-cell">#{{ transaction.id }}</td>
-                        {% endif %}
                         <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
                         <td>{{ transaction.branch.code }}</td>
-                        <td><span class="badge badge-type">{{ transaction.customer_type.name }}</span></td>
+                        <td><span class="badge badge-type">{{ transaction.business_model.name }}</span></td>
                         <td>{{ transaction.vehicle_brand.name }} {{ transaction.vehicle_model.name }}</td>
                         <td>
                             {% if transaction.outcome == 'success' %}
@@ -437,7 +432,7 @@ $(document).ready(function () {
 
     /* ─── Clear button visibility ─── */
     var params = new URLSearchParams(window.location.search);
-    var filterKeys = ['branch', 'customer_type', 'outcome', 'date_from', 'date_to'];
+    var filterKeys = ['branch', 'business_model', 'outcome', 'date_from', 'date_to'];
     var hasFilter = filterKeys.some(function(k) { return params.get(k); });
     if (hasFilter) $('#clear-btn').show();
 

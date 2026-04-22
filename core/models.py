@@ -17,6 +17,7 @@ class Branch(models.Model):
 
     class Meta:
         ordering = ['company', 'code']
+
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
@@ -25,38 +26,81 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
     branch = models.ForeignKey(Branch, on_delete=models.SET_NULL, null=True, blank=True)
-    
+
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
-class CustomerTypeMaster(models.Model):
-    """For the main customer type selection: wholesale, with/without installation, maintenance"""
+# ---------- New Master Models for Business Hierarchy ----------
+class BusinessModel(models.Model):
+    """B2C, B2B, B2G"""
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['id']
+
+class SalesType(models.Model):
+    """Parts, Maintenance"""
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+
+class PartsType(models.Model):
+    """With Installation, Without Installation"""
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+
+class CorporateClient(models.Model):
+    """Master list of corporate clients (for B2B → Corporate Clients)"""
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+
+class GovernmentOrganization(models.Model):
+    """Master list of government organizations (for B2G)"""
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+
+# Existing wholesale models (kept as is)
 class WholesaleCustomerType(models.Model):
-    """Company or Shop for wholesale customers"""
     name = models.CharField(max_length=20)  # Company, Shop
 
     def __str__(self):
         return self.name
 
 class WholesaleCompany(models.Model):
-    """Master list of wholesale companies (when 'Company' selected)"""
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
 class WholesaleShop(models.Model):
-    """Master list of wholesale shops (when 'Shop' selected)"""
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
+# Existing vehicle and other masters (unchanged)
 class VehicleBrand(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
@@ -73,7 +117,6 @@ class VehicleModel(models.Model):
     def __str__(self):
         return f"{self.brand.name} {self.name}"
 
-# models.py
 class ManufactureYear(models.Model):
     year = models.PositiveIntegerField(unique=True, validators=[MinValueValidator(1960), MaxValueValidator(2050)])
 
@@ -97,43 +140,45 @@ class MaintenanceType(models.Model):
         return self.name
 
 class Reason(models.Model):
-    """Reasons for failure, applicable to different customer types"""
+    """Reasons for failure"""
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
 class CustomerSource(models.Model):
-    name = models.CharField(max_length=50, unique=True)  # social media, communication, visit
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
-# ---------- Transaction Model ----------
+# ---------- Transaction Model (Updated) ----------
 class Transaction(models.Model):
-    # Common fields
+    # Common fields (unchanged)
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT)
-    customer_type = models.ForeignKey(CustomerTypeMaster, on_delete=models.PROTECT)  # wholesale, customer with installation, etc.
     vehicle_brand = models.ForeignKey(VehicleBrand, on_delete=models.PROTECT)
     vehicle_model = models.ForeignKey(VehicleModel, on_delete=models.PROTECT)
     manufacture_year = models.ForeignKey(ManufactureYear, on_delete=models.PROTECT)
     glass_position = models.ForeignKey(GlassPosition, on_delete=models.PROTECT)
     customer_source = models.ForeignKey(CustomerSource, on_delete=models.PROTECT)
 
-    # Conditional fields (nullable)
-    # Wholesale specific
-    wholesale_customer_type = models.ForeignKey(WholesaleCustomerType, on_delete=models.SET_NULL, null=True, blank=True)
-    wholesale_company = models.ForeignKey(WholesaleCompany, on_delete=models.SET_NULL, null=True, blank=True)
-    wholesale_shop = models.ForeignKey(WholesaleShop, on_delete=models.SET_NULL, null=True, blank=True)
-
-    # For customer with/without installation, maintenance
-    individual_name = models.CharField(max_length=100, blank=True)
-    company_name = models.CharField(max_length=100, blank=True)
-
-    # Maintenance specific
+    # New hierarchical fields
+    business_model = models.ForeignKey(BusinessModel, on_delete=models.PROTECT)
+    sales_type = models.ForeignKey(SalesType, on_delete=models.PROTECT, null=True, blank=True)
+    parts_type = models.ForeignKey(PartsType, on_delete=models.SET_NULL, null=True, blank=True)
     maintenance_type = models.ForeignKey(MaintenanceType, on_delete=models.SET_NULL, null=True, blank=True)
 
-    # Transaction outcome
+    # B2B specific
+    corporate_client = models.ForeignKey(CorporateClient, on_delete=models.SET_NULL, null=True, blank=True)
+    # Wholesale fields (kept for B2B → Wholesale)
+    # wholesale_customer_type = models.ForeignKey(WholesaleCustomerType, on_delete=models.SET_NULL, null=True, blank=True)
+    wholesale_company = models.ForeignKey(WholesaleCompany, on_delete=models.SET_NULL, null=True, blank=True)
+    # wholesale_shop = models.ForeignKey(WholesaleShop, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # B2G specific
+    government_org = models.ForeignKey(GovernmentOrganization, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Outcome fields (unchanged)
     OUTCOME_CHOICES = [
         ('success', 'Success'),
         ('fail', 'Fail'),
@@ -149,4 +194,4 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.customer_type} - {self.outcome} - {self.created_at.date()}"
+        return f"{self.business_model} - {self.outcome} - {self.created_at.date()}"

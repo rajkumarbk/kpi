@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django import forms
 from .forms import TransactionForm, LoginForm
-from .models import Transaction, VehicleModel, Branch, CustomerTypeMaster
+from .models import Transaction, VehicleModel, Branch, BusinessModel, SalesType, PartsType, VehicleBrand, ManufactureYear, GlassPosition, CustomerSource, WholesaleCompany, CorporateClient, GovernmentOrganization
 from django.http import JsonResponse
 from django.db.models import Count, Q, Sum, Avg
 from django.utils import timezone
@@ -12,6 +12,8 @@ from datetime import timedelta, datetime
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
+
+from django.contrib.auth.decorators import user_passes_test
 
 def check_admin(user):
     return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'admin'
@@ -57,65 +59,19 @@ def logout_view(request):
 @login_required
 def create_transaction(request):
     if request.method == 'POST':
-        form = TransactionForm(request.POST, request.FILES)
+        form = TransactionForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             transaction = form.save(commit=False)
-            # Auto-set branch for non-admin users
             if request.user.userprofile.role != 'admin':
                 transaction.branch = request.user.userprofile.branch
             transaction.save()
-            messages.success(request, 'Transaction recorded successfully!')
             return redirect('core:transaction_list')
     else:
-        form = TransactionForm()
-        # Hide branch field for non-admin users
+        form = TransactionForm(user=request.user)
         if request.user.userprofile.role != 'admin':
-            form.fields['branch'].widget = forms.HiddenInput()
             form.fields['branch'].initial = request.user.userprofile.branch
-    
+            form.fields['branch'].widget = forms.HiddenInput()
     return render(request, 'core/transaction_form.html', {'form': form})
-
-@admin_required
-@login_required
-def dashboard(request):
-    # Overall stats
-    total = Transaction.objects.count()
-    success_count = Transaction.objects.filter(outcome='success').count()
-    fail_count = Transaction.objects.filter(outcome='fail').count()
-
-    # Success/Fail pie chart data
-    pie_data = {
-        'labels': ['Success', 'Fail'],
-        'data': [success_count, fail_count],
-    }
-
-    # Reasons distribution (for fail cases)
-    reason_counts = Transaction.objects.filter(outcome='fail').values('reason__name').annotate(count=Count('id')).order_by('-count')
-    reason_labels = [item['reason__name'] or 'Unknown' for item in reason_counts]
-    reason_data = [item['count'] for item in reason_counts]
-
-    # Branch performance
-    branch_stats = Transaction.objects.values('branch__code').annotate(
-        total=Count('id'),
-        success=Count('id', filter=Q(outcome='success')),
-        fail=Count('id', filter=Q(outcome='fail')),
-        revenue=Sum('price', filter=Q(outcome='success'))
-    ).order_by('branch__code')
-
-    # Customer type distribution
-    customer_type_counts = Transaction.objects.values('customer_type__name').annotate(count=Count('id'))
-
-    context = {
-        'total': total,
-        'success_count': success_count,
-        'fail_count': fail_count,
-        'pie_data': json.dumps(pie_data),
-        'reason_labels': json.dumps(reason_labels),
-        'reason_data': json.dumps(reason_data),
-        'branch_stats': branch_stats,
-        'customer_type_counts': customer_type_counts,
-    }
-    return render(request, 'core/dashboard.html', context)
 
 def load_models(request):
     brand_id = request.GET.get('brand')
@@ -129,18 +85,17 @@ def transaction_list(request):
     else:
         transactions = Transaction.objects.filter(branch=request.user.userprofile.branch)
     
-    
     # Apply filters
     branch = request.GET.get('branch')
-    customer_type = request.GET.get('customer_type')
+    business_model = request.GET.get('business_model')
     outcome = request.GET.get('outcome')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
     if branch and request.user.userprofile.role == 'admin':
         transactions = transactions.filter(branch_id=branch)
-    if customer_type:
-        transactions = transactions.filter(customer_type_id=customer_type)
+    if business_model:
+        transactions = transactions.filter(business_model_id=business_model)
     if outcome:
         transactions = transactions.filter(outcome=outcome)
     if date_from:
@@ -172,7 +127,7 @@ def transaction_list(request):
         'fail_rate': fail_rate,
         'avg_transaction': avg_transaction,
         'branches': Branch.objects.all(),
-        'customer_types': CustomerTypeMaster.objects.all(),
+        'business_models': BusinessModel.objects.all(),
     }
     return render(request, 'core/transaction_list.html', context)
 
@@ -231,6 +186,7 @@ def dashboard(request):
     prev_transactions = Transaction.objects.filter(created_at__date__gte=prev_date_from, created_at__date__lte=prev_date_to)
     if selected_branch:
         prev_transactions = prev_transactions.filter(branch_id=selected_branch)
+    
     # Calculate trends
     current_total = transactions.count()
     prev_total = prev_transactions.count()
@@ -272,10 +228,46 @@ def dashboard(request):
     branch_labels = [stat['branch__code'] for stat in branch_stats]
     branch_data = [stat['total'] for stat in branch_stats]
     
-    # Customer type distribution
-    customer_type_stats = transactions.values('customer_type__name').annotate(count=Count('id'))
-    customer_type_labels = [stat['customer_type__name'] for stat in customer_type_stats]
-    customer_type_data = [stat['count'] for stat in customer_type_stats]
+    # Business Model distribution
+    business_model_stats = transactions.values('business_model__name').annotate(count=Count('id')).order_by('-count')
+    business_model_labels = [stat['business_model__name'] or 'Unknown' for stat in business_model_stats]
+    business_model_data = [stat['count'] for stat in business_model_stats]
+    
+    # Sales Type distribution
+    sales_type_stats = transactions.exclude(sales_type__isnull=True).values('sales_type__name').annotate(count=Count('id')).order_by('-count')
+    sales_type_labels = [stat['sales_type__name'] for stat in sales_type_stats]
+    sales_type_data = [stat['count'] for stat in sales_type_stats]
+    
+    # Parts & Maintenance Type distribution
+    parts_stats = transactions.exclude(parts_type__isnull=True).values('parts_type__name').annotate(count=Count('id'))
+    maintenance_stats = transactions.exclude(maintenance_type__isnull=True).values('maintenance_type__name').annotate(count=Count('id'))
+    
+    parts_maintenance_labels = []
+    parts_maintenance_data = []
+    for stat in parts_stats:
+        if stat['parts_type__name']:
+            parts_maintenance_labels.append(f"Parts: {stat['parts_type__name']}")
+            parts_maintenance_data.append(stat['count'])
+    for stat in maintenance_stats:
+        if stat['maintenance_type__name']:
+            parts_maintenance_labels.append(f"Maintenance: {stat['maintenance_type__name']}")
+            parts_maintenance_data.append(stat['count'])
+    
+    # Customer Source distribution
+    customer_source_stats = transactions.values('customer_source__name').annotate(count=Count('id')).order_by('-count')
+    customer_source_labels = [stat['customer_source__name'] or 'Unknown' for stat in customer_source_stats]
+    customer_source_data = [stat['count'] for stat in customer_source_stats]
+    
+    # B2B Type breakdown (Corporate vs Wholesale)
+    b2b_corporate_count = transactions.filter(business_model__name__icontains='B2B', corporate_client__isnull=False).count()
+    b2b_wholesale_count = transactions.filter(business_model__name__icontains='B2B', wholesale_company__isnull=False).count()
+    b2b_type_labels = ['Corporate Clients', 'Wholesale Customers']
+    b2b_type_data = [b2b_corporate_count, b2b_wholesale_count]
+    
+    # Vehicle Brand distribution
+    vehicle_brand_stats = transactions.values('vehicle_brand__name').annotate(count=Count('id')).order_by('-count')[:10]
+    vehicle_brand_labels = [stat['vehicle_brand__name'] for stat in vehicle_brand_stats]
+    vehicle_brand_data = [stat['count'] for stat in vehicle_brand_stats]
     
     # Failure reasons
     reason_counts = transactions.filter(outcome='fail').values('reason__name').annotate(count=Count('id')).order_by('-count')[:5]
@@ -302,8 +294,18 @@ def dashboard(request):
         'trend_data': json.dumps(daily_data),
         'branch_labels': json.dumps(branch_labels),
         'branch_data': json.dumps(branch_data),
-        'customer_type_labels': json.dumps(customer_type_labels),
-        'customer_type_data': json.dumps(customer_type_data),
+        'business_model_labels': json.dumps(business_model_labels),
+        'business_model_data': json.dumps(business_model_data),
+        'sales_type_labels': json.dumps(sales_type_labels),
+        'sales_type_data': json.dumps(sales_type_data),
+        'parts_maintenance_labels': json.dumps(parts_maintenance_labels),
+        'parts_maintenance_data': json.dumps(parts_maintenance_data),
+        'customer_source_labels': json.dumps(customer_source_labels),
+        'customer_source_data': json.dumps(customer_source_data),
+        'b2b_type_labels': json.dumps(b2b_type_labels),
+        'b2b_type_data': json.dumps(b2b_type_data),
+        'vehicle_brand_labels': json.dumps(vehicle_brand_labels),
+        'vehicle_brand_data': json.dumps(vehicle_brand_data),
         'reason_labels': json.dumps(reason_labels),
         'reason_data': json.dumps(reason_data),
         'branch_stats': branch_stats,
