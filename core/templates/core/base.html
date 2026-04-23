@@ -531,7 +531,9 @@
                 </div>
                 <!-- Mobile dropdown -->
                 <div class="nav-mobile-menu" id="nav-mobile-menu">
+                    {% if user.userprofile.role == 'admin' %}
                     <a href="{% url 'core:dashboard' %}" class="nav-link active"><i class="fas fa-chart-pie"></i>Dashboard</a>
+                        {% endif %}
                     <a href="{% url 'core:add_transaction' %}" class="nav-link active"><i class="fas fa-plus-circle"></i>New Entry</a>
                     <a href="{% url 'core:transaction_list' %}" class="nav-link active"><i class="fas fa-list-ul"></i>View All</a>
                     <a href="{% url 'core:logout' %}" class="nav-link active"><i class="fas fa-sign-out-alt"></i>Logout</a>

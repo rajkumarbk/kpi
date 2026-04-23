@@ -138,7 +138,7 @@
         <div class="glass-card">
             <div class="detail-section-title"><i class="fas fa-info-circle"></i>Basic Information</div>
             <div class="detail-row"><span class="detail-row-label">Branch</span><span class="detail-row-value">{{ transaction.branch }}</span></div>
-            <div class="detail-row"><span class="detail-row-label">Customer Type</span><span class="detail-row-value">{{ transaction.customer_type.name }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Business Model</span><span class="detail-row-value">{{ transaction.business_model.name }}</span></div>
             <div class="detail-row"><span class="detail-row-label">Source</span><span class="detail-row-value">{{ transaction.customer_source.name }}</span></div>
             <div class="detail-row"><span class="detail-row-label">Created</span><span class="detail-row-value">{{ transaction.created_at|date:"M d, Y H:i" }}</span></div>
         </div>
@@ -146,8 +146,8 @@
         <!-- Customer Details -->
         <div class="glass-card">
             <div class="detail-section-title"><i class="fas fa-user"></i>Customer Details</div>
-            {% if transaction.wholesale_customer_type %}
-                <div class="detail-row"><span class="detail-row-label">Type</span><span class="detail-row-value">{{ transaction.wholesale_customer_type }}</span></div>
+            {% if transaction.wholesale_business_model %}
+                <div class="detail-row"><span class="detail-row-label">Type</span><span class="detail-row-value">{{ transaction.wholesale_business_model }}</span></div>
                 {% if transaction.wholesale_company %}
                 <div class="detail-row"><span class="detail-row-label">Company</span><span class="detail-row-value">{{ transaction.wholesale_company }}</span></div>
                 {% endif %}

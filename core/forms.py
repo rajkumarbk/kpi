@@ -20,21 +20,21 @@ class TransactionForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'branch': Select2Widget,
-            'business_model': Select2Widget,
-            'sales_type': Select2Widget,
-            'parts_type': Select2Widget,
-            'maintenance_type': Select2Widget,
-            'corporate_client': Select2Widget,
-            'government_org': Select2Widget,
+            'business_model': Select2Widget(attrs={'autocomplete': 'off'}),
+            'sales_type': Select2Widget(attrs={'autocomplete': 'off'}),
+            'parts_type': Select2Widget(attrs={'autocomplete': 'off'}),
+            'maintenance_type': Select2Widget(attrs={'autocomplete': 'off'}),
+            'corporate_client': Select2Widget(attrs={'autocomplete': 'off'}),
+            'government_org': Select2Widget(attrs={'autocomplete': 'off'}),
+            'wholesale_company': Select2Widget(attrs={'autocomplete': 'off'}),
+            'vehicle_brand': Select2Widget(attrs={'autocomplete': 'off'}),
+            'vehicle_model': Select2Widget(attrs={'autocomplete': 'off'}),
+            'manufacture_year': Select2Widget(attrs={'autocomplete': 'off'}),
+            'glass_position': Select2Widget(attrs={'autocomplete': 'off'}),
+            'customer_source': Select2Widget(attrs={'autocomplete': 'off'}),
+            'reason': Select2Widget(attrs={'autocomplete': 'off'}),
             # 'wholesale_customer_type': Select2Widget,
-            'wholesale_company': Select2Widget,
             # 'wholesale_shop': Select2Widget,
-            'vehicle_brand': Select2Widget,
-            'vehicle_model': Select2Widget,
-            'manufacture_year': Select2Widget,
-            'glass_position': Select2Widget,
-            'customer_source': Select2Widget,
-            'reason': Select2Widget,
         }
 
     def __init__(self, *args, **kwargs):
@@ -52,6 +52,7 @@ class TransactionForm(forms.ModelForm):
             self.fields['branch'].queryset = Branch.objects.filter(id=self.user.userprofile.branch.id)
             self.fields['branch'].initial = self.user.userprofile.branch
             self.fields['branch'].widget = forms.HiddenInput()
+            self.fields['branch'].required = False
 
         # Make conditional fields not required initially
         optional_fields = [
