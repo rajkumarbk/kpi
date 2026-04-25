@@ -41,30 +41,54 @@ class TransactionForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        # Set initial manufacture year to current year
-        # current_year = datetime.datetime.now().year
-        # year_obj = ManufactureYear.objects.filter(year=current_year).first()
-        # if year_obj:
-        #     self.fields['manufacture_year'].initial = year_obj.id
+        is_admin = (
+            self.user and
+            hasattr(self.user, 'userprofile') and
+            self.user.userprofile.role == 'admin'
+        )
 
-        # Restrict branch for non-admin users
-        if self.user and hasattr(self.user, 'userprofile') and self.user.userprofile.role != 'admin':
+        # ── Determine active branch ──────────────────────────────────────────
+        # Priority: POST branch (admin changing branch mid-form) →
+        #           existing instance branch (edit form) →
+        #           user's fixed branch (non-admin)
+        branch_id = None
+        if self.data.get('branch'):
+            branch_id = self.data.get('branch')
+        elif self.instance and self.instance.pk and self.instance.branch_id:
+            branch_id = self.instance.branch_id
+        elif not is_admin and self.user and self.user.userprofile.branch:
+            branch_id = self.user.userprofile.branch_id
+
+        # ── Filter branch-specific customer dropdowns ────────────────────────
+        branch_customer_fields = {
+            'corporate_client': CorporateClient,
+            'wholesale_company': WholesaleCompany,
+            'government_org':    GovernmentOrganization,
+        }
+        for field_name, model_class in branch_customer_fields.items():
+            if branch_id:
+                self.fields[field_name].queryset = model_class.objects.filter(branch_id=branch_id)
+            else:
+                # No branch selected yet → show empty (prevents leaking other branch data)
+                self.fields[field_name].queryset = model_class.objects.none()
+
+        # ── Non-admin: lock branch to their own ─────────────────────────────
+        if not is_admin and self.user:
             self.fields['branch'].queryset = Branch.objects.filter(id=self.user.userprofile.branch.id)
             self.fields['branch'].initial = self.user.userprofile.branch
-            self.fields['branch'].widget = forms.HiddenInput()
+            self.fields['branch'].widget.attrs['disabled'] = 'disabled'
             self.fields['branch'].required = False
 
-        # Make conditional fields not required initially
+        # ── Optional fields ──────────────────────────────────────────────────
         optional_fields = [
             'sales_type', 'parts_type', 'maintenance_type',
             'corporate_client', 'government_org',
-            'wholesale_company',
-            'price', 'document', 'reason', 'expected_price'
+            'wholesale_company', 'price', 'document', 'reason', 'expected_price'
         ]
         for field in optional_fields:
             if field in self.fields:
                 self.fields[field].required = False
 
-        # Add CSS classes
+        # ── CSS classes ──────────────────────────────────────────────────────
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-input'

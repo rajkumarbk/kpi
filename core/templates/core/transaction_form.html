@@ -635,6 +635,57 @@ $(document).ready(function () {
 
     // Initialize on page load
     handleBusinessModelChange();
+
+    // ---------- Branch → Customer Dropdowns (Admin only) ----------
+function repopulateSelect(selectId, items) {
+    var $select = $('#' + selectId);
+
+    // Step 1: Destroy Select2 cleanly (check class Select2 adds when initialized)
+    if ($select.hasClass('select2-hidden-accessible')) {
+        $select.select2('destroy');
+    }
+
+    // Step 2: Repopulate raw options
+    $select.empty().append($('<option>', { value: '', text: '' }));
+    $.each(items, function (i, item) {
+        $select.append($('<option>', { value: item.id, text: item.name }));
+    });
+
+    // Step 3: Reinit Select2 with the same options used for all other fields
+    $select.select2({
+        theme: 'classic',
+        placeholder: 'Select an option',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Step 4: Reset value cleanly
+    $select.val(null).trigger('change');
+}
+
+$('#id_branch').on('change', function () {
+    var branchId = $(this).val();
+    if (!branchId) {
+        // No branch selected → clear all three customer dropdowns
+        repopulateSelect('id_corporate_client', []);
+        repopulateSelect('id_wholesale_company', []);
+        repopulateSelect('id_government_org', []);
+        return;
+    }
+
+    $.ajax({
+        url: "{% url 'core:load_branch_customers' %}",
+        data: { branch_id: branchId },
+        success: function (data) {
+            repopulateSelect('id_corporate_client', data.corporate_clients);
+            repopulateSelect('id_wholesale_company', data.wholesale_companies);
+            repopulateSelect('id_government_org', data.government_orgs);
+        },
+        error: function () {
+            console.error('Failed to load branch customers.');
+        }
+    });
+});
 });
 </script>
 {% endblock %}

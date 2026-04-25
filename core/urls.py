@@ -11,4 +11,5 @@ urlpatterns = [
     path('list/', views.transaction_list, name='transaction_list'),
     path('detail/<int:pk>/', views.transaction_detail, name='transaction_detail'),
     path('ajax/load-models/', views.load_models, name='ajax_load_models'),
+    path('ajax/branch-customers/', views.load_branch_customers, name='load_branch_customers'),
 ]

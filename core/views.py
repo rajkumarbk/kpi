@@ -70,7 +70,6 @@ def create_transaction(request):
         form = TransactionForm(user=request.user)
         if request.user.userprofile.role != 'admin':
             form.fields['branch'].initial = request.user.userprofile.branch
-            form.fields['branch'].widget = forms.HiddenInput()
     return render(request, 'core/transaction_form.html', {'form': form})
 
 def load_models(request):
@@ -314,3 +313,26 @@ def dashboard(request):
         'branches': Branch.objects.all().order_by('code'),
     }
     return render(request, 'core/dashboard.html', context)
+
+@login_required
+def load_branch_customers(request):
+    branch_id = request.GET.get('branch_id')
+    if not branch_id:
+        return JsonResponse({
+            'corporate_clients': [],
+            'wholesale_companies': [],
+            'government_orgs': []
+        })
+
+    data = {
+        'corporate_clients': list(
+            CorporateClient.objects.filter(branch_id=branch_id).values('id', 'name')
+        ),
+        'wholesale_companies': list(
+            WholesaleCompany.objects.filter(branch_id=branch_id).values('id', 'name')
+        ),
+        'government_orgs': list(
+            GovernmentOrganization.objects.filter(branch_id=branch_id).values('id', 'name')
+        ),
+    }
+    return JsonResponse(data)

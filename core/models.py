@@ -62,24 +62,30 @@ class PartsType(models.Model):
         ordering = ['id']
 
 class CorporateClient(models.Model):
-    """Master list of corporate clients (for B2B → Corporate Clients)"""
-    name = models.CharField(max_length=100, unique=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='corporate_clients')
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('branch', 'name')
+        ordering = ['name']
 
     def __str__(self):
         return self.name
 
-    class Meta:
-        ordering = ['id']
+
+
+
 
 class GovernmentOrganization(models.Model):
-    """Master list of government organizations (for B2G)"""
-    name = models.CharField(max_length=100, unique=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='government_orgs')
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('branch', 'name')
+        ordering = ['name']
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        ordering = ['id']
 
 # Existing wholesale models (kept as is)
 class WholesaleCustomerType(models.Model):
@@ -89,7 +95,12 @@ class WholesaleCustomerType(models.Model):
         return self.name
 
 class WholesaleCompany(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='wholesale_companies')
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('branch', 'name')
+        ordering = ['name']
 
     def __str__(self):
         return self.name
