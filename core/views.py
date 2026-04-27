@@ -79,6 +79,27 @@ def load_models(request):
     return JsonResponse(list(models.values('id', 'name')), safe=False)
 
 @login_required
+def transaction_edit(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+    form = TransactionForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=transaction,
+        user=request.user          # ← this was missing
+    )
+    if form.is_valid():
+        form.save()
+        return redirect('core:transaction_detail', pk=pk)
+    return render(request, 'core/transaction_form.html', {'form': form, 'transaction': transaction})
+
+@login_required
+def transaction_delete(request, pk):
+    if request.method == 'POST':
+        get_object_or_404(Transaction, pk=pk).delete()
+        return redirect('core:transaction_list')
+    return redirect('core:transaction_detail', pk=pk)
+
+@login_required
 def transaction_list(request):
     if request.user.userprofile.role == 'admin':
         transactions = Transaction.objects.all()

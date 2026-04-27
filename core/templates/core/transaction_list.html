@@ -327,12 +327,13 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <!-- <th>ID</th> -->
                         <th>Date</th>
                         <th>Branch</th>
                         <th>Business Model</th>
                         <th>Vehicle</th>
                         <th>Outcome</th>
+                        <th>Reason</th>
                         <th>Price</th>
                         <th>Actions</th>
                     </tr>
@@ -340,7 +341,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                 <tbody>
                     {% for transaction in transactions %}
                     <tr onclick="window.location='{% url 'core:transaction_detail' transaction.id %}'" style="cursor:pointer;">
-                        <td class="id-cell">#{{ transaction.id }}</td>
+                        <!-- <td class="id-cell">#{{ transaction.id }}</td> -->
                         <td>{{ transaction.created_at|date:"M d, Y H:i" }}</td>
                         <td>{{ transaction.branch.code }}</td>
                         <td><span class="badge badge-type">{{ transaction.business_model.name }}</span></td>
@@ -353,23 +354,35 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                             {% endif %}
                         </td>
                         <td>
+                            {% if transaction.reason %}
+                                {{ transaction.reason }}
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             {% if transaction.price %}
                                 <span class="price-val">SAR {{ transaction.price }}</span>
                             {% else %}
                                 <span class="price-nil">—</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td onclick="event.stopPropagation()">
                             <div style="display:flex;gap:0.4rem;">
-                                <a href="{% url 'core:transaction_detail' transaction.id %}" class="action-btn" title="View">
+                                <!-- <a href="{% url 'core:transaction_detail' transaction.id %}" class="action-btn" title="View">
                                     <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="#" class="action-btn edit" title="Edit">
+                                </a> -->
+                                <a href="{% url 'core:transaction_edit' transaction.id %}" class="action-btn edit" title="Edit">
                                     <i class="fas fa-pen-to-square"></i>
                                 </a>
-                                <a href="#" class="action-btn delete" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                                <button type="button" class="action-btn delete-btn" title="Delete"
+                                        data-id="{{ transaction.id }}"
+                                        data-delete-url="{% url 'core:transaction_delete' transaction.id %}"
+                                        data-label="#{{ transaction.id }} — {{ transaction.vehicle_brand.name }} {{ transaction.vehicle_model.name }}"
+                                        style="border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer;"
+                                        onclick="event.stopPropagation();event.preventDefault();document.getElementById('delete-modal-label').textContent=this.dataset.label;document.getElementById('delete-form').action=this.dataset.deleteUrl;document.getElementById('delete-modal').style.display='flex';return false;">
+                                    <i class="fas fa-trash" style="color:#FF4757;"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -452,6 +465,47 @@ $(document).ready(function () {
 
     /* icon offset for Select2 rendered fields */
     /* Select2 replaces the <select> — the icon sits in .field-icon-wrap, which also wraps the Select2 container */
+
+    /* ─── Delete Modal ─── */
+    $(document).on('click', '.delete-btn', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        $('#delete-modal-label').text($(this).data('label'));
+        $('#delete-form').attr('action', $(this).data('delete-url'));
+        $('#delete-modal').css('display', 'flex');
+    });
+    $('#delete-cancel-btn').on('click', function () { $('#delete-modal').hide(); });
+    $('#delete-modal').on('click', function (e) { if (e.target === this) $(this).hide(); });
 });
 </script>
+<!-- Delete Modal -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;max-width:420px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+        <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1.25rem;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,71,87,0.1);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-trash" style="color:#FF4757;font-size:1rem;"></i>
+            </div>
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">Delete Transaction</div>
+                <div style="font-size:0.82rem;color:var(--text-muted);">This action cannot be undone.</div>
+            </div>
+        </div>
+        <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">
+            Are you sure you want to delete <strong id="delete-modal-label" style="color:var(--text-primary);"></strong>?
+        </p>
+        <form id="delete-form" method="post" action="">
+            {% csrf_token %}
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                <button type="button" id="delete-cancel-btn" class="btn-secondary" style="padding:0.6rem 1.2rem;font-size:0.85rem;">
+                    <i class="fas fa-xmark"></i> Cancel
+                </button>
+                <button type="submit" style="background:#FF4757;color:white;padding:0.6rem 1.2rem;border-radius:var(--radius-md);font-weight:600;font-size:0.85rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+                    <i class="fas fa-trash"></i> Yes, Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 {% endblock %}

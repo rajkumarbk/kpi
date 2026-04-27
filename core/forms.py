@@ -33,6 +33,8 @@ class TransactionForm(forms.ModelForm):
             'glass_position': Select2Widget(attrs={'autocomplete': 'off'}),
             'customer_source': Select2Widget(attrs={'autocomplete': 'off'}),
             'reason': Select2Widget(attrs={'autocomplete': 'off'}),
+            'note': forms.Textarea(attrs={'rows': 3}),
+            'maintenance_other_note': forms.Textarea(attrs={'rows': 3}),
             # 'wholesale_customer_type': Select2Widget,
             # 'wholesale_shop': Select2Widget,
         }
@@ -58,8 +60,8 @@ class TransactionForm(forms.ModelForm):
         optional_fields = [
             'sales_type', 'parts_type', 'maintenance_type',
             'corporate_client', 'government_org',
-            'wholesale_company',
-            'price', 'document', 'reason', 'expected_price'
+            'wholesale_company', 'price',
+            'document', 'reason', 'expected_price'
         ]
         for field in optional_fields:
             if field in self.fields:
@@ -68,3 +70,18 @@ class TransactionForm(forms.ModelForm):
         # Add CSS classes
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-input'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        outcome = cleaned_data.get('outcome')
+        
+        if outcome == 'success':
+            if not cleaned_data.get('price'):
+                self.add_error('price', 'Price is required for successful transactions.')
+        else:
+            # Clear price errors if outcome is fail
+            cleaned_data['price'] = cleaned_data.get('price') or None
+            if 'price' in self._errors:
+                del self._errors['price']
+        
+        return cleaned_data

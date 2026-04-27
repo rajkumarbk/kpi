@@ -89,12 +89,12 @@
             </div>
         </div>
         <div class="detail-header-right">
-            <button class="btn-secondary" style="padding:0.6rem 1.1rem;font-size:0.85rem;">
-                <i class="fas fa-pen-to-square"></i>Edit
-            </button>
-            <button class="btn-danger">
-                <i class="fas fa-trash"></i>Delete
-            </button>
+            <a href="{% url 'core:transaction_edit' transaction.id %}" class="btn-secondary" style="padding:0.6rem 1.1rem;font-size:0.85rem;text-decoration:none;">
+    <i class="fas fa-pen-to-square"></i>Edit
+</a>
+            <button class="btn-danger" id="detail-delete-btn">
+    <i class="fas fa-trash"></i>Delete
+</button>
         </div>
     </div>
 
@@ -138,31 +138,40 @@
         <div class="glass-card">
             <div class="detail-section-title"><i class="fas fa-info-circle"></i>Basic Information</div>
             <div class="detail-row"><span class="detail-row-label">Branch</span><span class="detail-row-value">{{ transaction.branch }}</span></div>
-            <div class="detail-row"><span class="detail-row-label">Business Model</span><span class="detail-row-value">{{ transaction.business_model.name }}</span></div>
             <div class="detail-row"><span class="detail-row-label">Source</span><span class="detail-row-value">{{ transaction.customer_source.name }}</span></div>
             <div class="detail-row"><span class="detail-row-label">Created</span><span class="detail-row-value">{{ transaction.created_at|date:"M d, Y H:i" }}</span></div>
+            <div class="detail-row"><span class="detail-row-label">Updated</span><span class="detail-row-value">{{ transaction.updated_at|date:"M d, Y H:i" }}</span></div>
         </div>
-
-        <!-- Customer Details -->
+        
+        <!-- Work Details -->
         <div class="glass-card">
-            <div class="detail-section-title"><i class="fas fa-user"></i>Customer Details</div>
-            {% if transaction.wholesale_business_model %}
-                <div class="detail-row"><span class="detail-row-label">Type</span><span class="detail-row-value">{{ transaction.wholesale_business_model }}</span></div>
-                {% if transaction.wholesale_company %}
-                <div class="detail-row"><span class="detail-row-label">Company</span><span class="detail-row-value">{{ transaction.wholesale_company }}</span></div>
-                {% endif %}
-                {% if transaction.wholesale_shop %}
-                <div class="detail-row"><span class="detail-row-label">Shop</span><span class="detail-row-value">{{ transaction.wholesale_shop }}</span></div>
-                {% endif %}
-            {% elif transaction.individual_name %}
-                <div class="detail-row"><span class="detail-row-label">Individual</span><span class="detail-row-value">{{ transaction.individual_name }}</span></div>
-            {% elif transaction.company_name %}
-                <div class="detail-row"><span class="detail-row-label">Company</span><span class="detail-row-value">{{ transaction.company_name }}</span></div>
-            {% endif %}
-            {% if transaction.maintenance_type %}
-                <div class="detail-row"><span class="detail-row-label">Maintenance</span><span class="detail-row-value">{{ transaction.maintenance_type.name }}</span></div>
-            {% endif %}
-        </div>
+    <div class="detail-section-title"><i class="fas fa-user"></i>Work Details</div>
+    <div class="detail-row"><span class="detail-row-label">Business Model</span><span class="detail-row-value">{{ transaction.business_model.name }}</span></div>
+
+    {% if transaction.corporate_client %}
+        <div class="detail-row"><span class="detail-row-label">Corporate Client</span><span class="detail-row-value">{{ transaction.corporate_client.name }}</span></div>
+    {% endif %}
+
+    {% if transaction.wholesale_company %}
+        <div class="detail-row"><span class="detail-row-label">Wholesale Company</span><span class="detail-row-value">{{ transaction.wholesale_company.name }}</span></div>
+    {% endif %}
+
+    {% if transaction.government_org %}
+        <div class="detail-row"><span class="detail-row-label">Government Org</span><span class="detail-row-value">{{ transaction.government_org.name }}</span></div>
+    {% endif %}
+
+    {% if transaction.sales_type %}
+        <div class="detail-row"><span class="detail-row-label">Sales Type</span><span class="detail-row-value">{{ transaction.sales_type.name }}</span></div>
+    {% endif %}
+
+    {% if transaction.parts_type %}
+        <div class="detail-row"><span class="detail-row-label">Parts Type</span><span class="detail-row-value">{{ transaction.parts_type.name }}</span></div>
+    {% endif %}
+
+    {% if transaction.maintenance_type %}
+        <div class="detail-row"><span class="detail-row-label">Maintenance Type</span><span class="detail-row-value">{{ transaction.maintenance_type.name }}</span></div>
+    {% endif %}
+</div>
 
         <!-- Vehicle Information -->
         <div class="glass-card">
@@ -204,4 +213,40 @@
 
     </div>
 </div>
+<!-- Delete Modal -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;max-width:420px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.25);">
+        <div style="display:flex;align-items:center;gap:0.875rem;margin-bottom:1.25rem;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,71,87,0.1);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-trash" style="color:#FF4757;font-size:1rem;"></i>
+            </div>
+            <div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">Delete Transaction</div>
+                <div style="font-size:0.82rem;color:var(--text-muted);">This action cannot be undone.</div>
+            </div>
+        </div>
+        <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:1.5rem;">
+            Are you sure you want to permanently delete transaction <strong style="color:var(--text-primary);">#{{ transaction.id }}</strong>?
+        </p>
+        <form method="post" action="{% url 'core:transaction_delete' transaction.id %}">
+            {% csrf_token %}
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                <button type="button" id="delete-cancel-btn" class="btn-secondary" style="padding:0.6rem 1.2rem;font-size:0.85rem;">
+                    <i class="fas fa-xmark"></i> Cancel
+                </button>
+                <button type="submit" style="background:#FF4757;color:white;padding:0.6rem 1.2rem;border-radius:var(--radius-md);font-weight:600;font-size:0.85rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+                    <i class="fas fa-trash"></i> Yes, Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    $('#detail-delete-btn').on('click', function () { $('#delete-modal').css('display', 'flex'); });
+    $('#delete-cancel-btn').on('click', function () { $('#delete-modal').hide(); });
+    $('#delete-modal').on('click', function (e) { if (e.target === this) $(this).hide(); });
+});
+</script>
 {% endblock %}

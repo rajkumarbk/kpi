@@ -407,7 +407,7 @@
 
             <!-- ─── Footer ─── -->
             <div class="form-footer">
-                <a href="{% url 'core:dashboard' %}" class="btn-secondary">
+                <a href="{% url 'core:transaction_list' %}" class="btn-secondary">
                     <i class="fas fa-xmark"></i> Cancel
                 </a>
                 <button type="submit" class="btn-primary">
@@ -592,6 +592,7 @@ $(document).ready(function () {
         }
     }
 
+    // AFTER
     $('.outcome-tab').on('click', function () {
         toggleOutcome($(this).data('value'));
     });
@@ -602,17 +603,6 @@ $(document).ready(function () {
     $bm.on('change', handleBusinessModelChange);
     $('#id_b2b_type').on('change', handleB2BTypeChange);
     $('#id_sales_type').on('change', handleSalesTypeChange);
-
-    // Wholesale subtype toggle
-    // $('#id_wholesale_customer_type').on('change', function () {
-    //     var txt = $(this).find('option:selected').text().toLowerCase();
-    //     $wholesaleCompany.addClass('hidden');
-    //     // $wholesaleShop.addClass('hidden');
-    //     $('#id_wholesale_company').val(null).trigger('change');
-    //     if (txt.includes('company')) {
-    //         $wholesaleCompany.removeClass('hidden');
-    //     } 
-    // });
 
     // Failure reason note logic
     $('#id_reason').on('change', function () {
@@ -633,8 +623,88 @@ $(document).ready(function () {
         if (!isOther) $('#id_maintenance_other_note').val('');
     });
 
-    // Initialize on page load
-    handleBusinessModelChange();
+    // ---------- Page Load: Restore all fields (works for both create and edit) ----------
+    function restoreFormState() {
+        var bmText = $bm.find('option:selected').text().toLowerCase();
+        var isB2C = bmText.includes('b2c') || bmText.includes('business to customer') || bmText.includes('customer');
+        var isB2B = bmText.includes('b2b') || bmText.includes('business to business');
+        var isB2G = bmText.includes('b2g') || bmText.includes('government') || bmText.includes('gov');
+
+        // Show correct top-level section based on business model
+        if (isB2C) {
+            $salesSection.removeClass('hidden');
+        } else if (isB2B) {
+            $b2bTypeSection.removeClass('hidden');
+            // Restore B2B sub-type from saved data
+            var hasCorporate = $('#id_corporate_client').val();
+            var hasWholesale = $('#id_wholesale_company').val();
+            if (hasCorporate) {
+                $('#id_b2b_type').val('corporate').trigger('change.select2');
+                $corpSection.removeClass('hidden');
+                $salesSection.removeClass('hidden');
+            } else if (hasWholesale) {
+                $('#id_b2b_type').val('wholesale').trigger('change.select2');
+                $wholesaleSection.removeClass('hidden');
+            }
+        } else if (isB2G) {
+            $govSection.removeClass('hidden');
+            $salesSection.removeClass('hidden');
+        }
+
+        // Restore sales type -> parts / maintenance
+        var salesText = $('#id_sales_type option:selected').text().toLowerCase();
+        if (salesText.includes('parts')) {
+            $salesSection.removeClass('hidden');
+            $partsSection.removeClass('hidden');
+        } else if (salesText.includes('maintenance')) {
+            $salesSection.removeClass('hidden');
+            $maintSection.removeClass('hidden');
+            // Restore maintenance "other" note
+            var maintText = $('#id_maintenance_type option:selected').text().toLowerCase();
+            if (maintText.includes('other')) {
+                $('#maintenance-other-note-field').removeClass('hidden');
+            }
+        }
+
+        // Restore outcome tab + dependent fail fields
+        var outcome = $('#id_outcome').val();
+        if (outcome) toggleOutcome(outcome);
+
+        // Restore expected price + note visibility after reason is known
+        setTimeout(function () { $('#id_reason').trigger('change'); }, 150);
+
+        // In edit mode: restore vehicle model & year without wiping saved values
+        var savedBrandId = $('#id_vehicle_brand').val();
+        var savedModelId = $('#id_vehicle_model').val();
+        var savedYearId  = $('#id_manufacture_year').val();
+
+        if (savedBrandId) {
+            // Load models for this brand via AJAX, then restore the saved model & year
+            $.ajax({
+                url: "{% url 'core:ajax_load_models' %}",
+                data: { 'brand': savedBrandId },
+                success: function (data) {
+                    var modelSelect = $('#id_vehicle_model');
+                    modelSelect.empty().append('<option value="">Select model</option>');
+                    $.each(data, function (i, m) {
+                        modelSelect.append($('<option>', { value: m.id, text: m.name }));
+                    });
+                    modelSelect.prop('disabled', false);
+                    // Restore saved model selection
+                    if (savedModelId) {
+                        modelSelect.val(savedModelId).trigger('change.select2');
+                        $('#id_manufacture_year').prop('disabled', false);
+                        // Restore saved year
+                        if (savedYearId) {
+                            $('#id_manufacture_year').val(savedYearId).trigger('change.select2');
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    restoreFormState();
 });
 </script>
 {% endblock %}

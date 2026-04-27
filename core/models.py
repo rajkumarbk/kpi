@@ -184,7 +184,7 @@ class Transaction(models.Model):
         ('fail', 'Fail'),
     ]
     outcome = models.CharField(max_length=10, choices=OUTCOME_CHOICES)
-    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=False)
     document = models.FileField(upload_to='documents/', null=True, blank=True)
     note = models.TextField(blank=True)
     reason = models.ForeignKey(Reason, on_delete=models.SET_NULL, null=True, blank=True)
@@ -192,6 +192,7 @@ class Transaction(models.Model):
     maintenance_other_note = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.business_model} - {self.outcome} - {self.created_at.date()}"
