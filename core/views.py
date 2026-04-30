@@ -279,9 +279,9 @@ def dashboard(request):
     customer_source_labels = [stat['customer_source__name'] or 'Unknown' for stat in customer_source_stats]
     customer_source_data = [stat['count'] for stat in customer_source_stats]
     
-    # B2B Type breakdown (Corporate vs Wholesale)
-    b2b_corporate_count = transactions.filter(business_model__name__icontains='B2B', corporate_client__isnull=False).count()
-    b2b_wholesale_count = transactions.filter(business_model__name__icontains='B2B', wholesale_company__isnull=False).count()
+   # B2B Type breakdown (Corporate vs Wholesale)
+    b2b_corporate_count = transactions.filter(corporate_client__isnull=False).count()
+    b2b_wholesale_count = transactions.filter(wholesale_company__isnull=False).count()
     b2b_type_labels = ['Corporate Clients', 'Wholesale Customers']
     b2b_type_data = [b2b_corporate_count, b2b_wholesale_count]
     

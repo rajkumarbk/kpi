@@ -150,6 +150,27 @@
 
     /* Hidden utility */
     .hidden { display: none !important; }
+
+    /* Error state for fields */
+    .field-group.error .form-input,
+    .field-group.error .select2-container .select2-selection {
+        border-color: #FF4757 !important;
+        box-shadow: 0 0 0 2px rgba(255,71,87,0.2) !important;
+    }
+    
+    .error-message {
+        color: #FF4757;
+        font-size: 0.75rem;
+        margin-top: 0.35rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-weight: 500;
+    }
+    
+    .error-message i {
+        font-size: 0.65rem;
+    }
 </style>
 
 <div class="form-page-wrap" data-aos="fade-up">
@@ -166,7 +187,7 @@
             </div>
         </div>
 
-        <form method="post" enctype="multipart/form-data" id="transaction-form" autocomplete="off">
+        <form method="post" enctype="multipart/form-data" id="transaction-form" autocomplete="off" novalidate>
             {% csrf_token %}
 
             <!-- ─── SECTION: Branch & Customer Info ─── -->
@@ -178,28 +199,30 @@
             <!-- Branch & Business Model row -->
             <div class="field-grid-2">
                 <!-- Branch -->
-                <div class="field-group">
+                <div class="field-group" id="field-group-branch">
                     <div class="field-label"><i class="fas fa-store"></i>Branch</div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-store-alt"></i>
                         {{ form.branch|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
 
                 <!-- Business Model -->
-                <div class="field-group">
-                    <div class="field-label"><i class="fas fa-chart-pie"></i>Business Model</div>
+                <div class="field-group" id="field-group-business_model">
+                    <div class="field-label"><i class="fas fa-chart-pie"></i>Business Model <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-briefcase"></i>
                         {{ form.business_model|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
             </div>
 
             <!-- B2B Type Selector (UI only) -->
             <div class="field-grid-2">
-                <div id="b2b-type-section" class="hidden field-group" style="margin-top:1.25rem;">
-                    <div class="field-label"><i class="fas fa-handshake"></i>B2B Customer Type</div>
+                <div id="b2b-type-section" class="hidden field-group" style="margin-top:1.25rem;" id="field-group-b2b_type">
+                    <div class="field-label"><i class="fas fa-handshake"></i>B2B Customer Type <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-users-between-lines"></i>
                         <select id="id_b2b_type" name="b2b_type" class="form-input">
@@ -208,22 +231,25 @@
                             <option value="wholesale">Wholesale Customers</option>
                         </select>
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
                 <!-- Corporate Client (B2B Corporate) -->
-                <div id="corporate-client-section" class="hidden field-group" style="margin-top:1.25rem;">
-                    <div class="field-label"><i class="fas fa-building"></i>Corporate Client</div>
+                <div id="corporate-client-section" class="hidden field-group" style="margin-top:1.25rem;" id="field-group-corporate_client">
+                    <div class="field-label"><i class="fas fa-building"></i>Corporate Client <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-city"></i>
                         {{ form.corporate_client|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
                 <div id="wholesale-section" class="hidden" style="margin-top:1.25rem;">
-                    <div id="wholesale-company-field" class="field-group">
-                        <div class="field-label"><i class="fas fa-building"></i>Company</div>
+                    <div id="wholesale-company-field" class="field-group" id="field-group-wholesale_company">
+                        <div class="field-label"><i class="fas fa-building"></i>Company <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap select2-icon-wrap">
                             <i class="field-icon fas fa-city"></i>
                             {{ form.wholesale_company|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
                 </div>
             </div>
@@ -231,47 +257,52 @@
              
             <div class="field-grid-2">
                 <!-- Sales Type (Parts / Maintenance) -->
-                <div id="sales-type-section" class="hidden field-group" style="margin-top:1.25rem;">
-                    <div class="field-label"><i class="fas fa-tags"></i>Sales Type</div>
+                <div id="sales-type-section" class="hidden field-group" style="margin-top:1.25rem;" id="field-group-sales_type">
+                    <div class="field-label"><i class="fas fa-tags"></i>Sales Type <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-cube"></i>
                         {{ form.sales_type|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
             
                 <!-- Parts Type -->
-                <div id="parts-type-section" class="hidden field-group" style="margin-top:1.25rem;">
-                    <div class="field-label"><i class="fas fa-puzzle-piece"></i>Parts Type</div>
+                <div id="parts-type-section" class="hidden field-group" style="margin-top:1.25rem;" id="field-group-parts_type">
+                    <div class="field-label"><i class="fas fa-puzzle-piece"></i>Parts Type <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-gear"></i>
                         {{ form.parts_type|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
             
                 <!-- Maintenance Type -->
-                <div id="maintenance-type-section" class="hidden field-group" style="margin-top:1.25rem;">
-                    <div class="field-label"><i class="fas fa-tools"></i>Maintenance Type</div>
+                <div id="maintenance-type-section" class="hidden field-group" style="margin-top:1.25rem;" id="field-group-maintenance_type">
+                    <div class="field-label"><i class="fas fa-tools"></i>Maintenance Type <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-wrench"></i>
                         {{ form.maintenance_type|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                     <div id="maintenance-other-note-field" class="hidden field-group" style="margin-top:1rem;">
-                        <div class="field-label"><i class="fas fa-note-sticky"></i>Maintenance Note</div>
+                        <div class="field-label"><i class="fas fa-note-sticky"></i>Maintenance Note <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-pen-to-square"></i>
                             {{ form.maintenance_other_note|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Government Organization (B2G) -->
-            <div id="gov-org-section" class="hidden field-group" style="margin-top:1.25rem;">
-                <div class="field-label"><i class="fas fa-landmark"></i>Government Organization</div>
+            <div id="gov-org-section" class="hidden field-group" style="margin-top:1.25rem;" id="field-group-government_org">
+                <div class="field-label"><i class="fas fa-landmark"></i>Government Organization <span style="color:#FF4757;">*</span></div>
                 <div class="field-icon-wrap select2-icon-wrap">
                     <i class="field-icon fas fa-flag"></i>
                     {{ form.government_org|add_class:"form-input" }}
                 </div>
+                <div class="error-message hidden"></div>
             </div>            
 
             <div class="form-divider"></div>
@@ -283,38 +314,42 @@
             </div>
 
             <div class="field-grid-3">
-                <div class="field-group">
-                    <div class="field-label"><i class="fas fa-car"></i>Brand</div>
+                <div class="field-group" id="field-group-vehicle_brand">
+                    <div class="field-label"><i class="fas fa-car"></i>Brand <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-car"></i>
                         {{ form.vehicle_brand|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
 
-                <div class="field-group">
-                    <div class="field-label"><i class="fas fa-car-side"></i>Model</div>
+                <div class="field-group" id="field-group-vehicle_model">
+                    <div class="field-label"><i class="fas fa-car-side"></i>Model <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-car-side"></i>
                         {{ form.vehicle_model|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
 
-                <div class="field-group">
-                    <div class="field-label"><i class="fas fa-calendar-alt"></i>Year</div>
+                <div class="field-group" id="field-group-manufacture_year">
+                    <div class="field-label"><i class="fas fa-calendar-alt"></i>Year <span style="color:#FF4757;">*</span></div>
                     <div class="field-icon-wrap select2-icon-wrap">
                         <i class="field-icon fas fa-calendar-check"></i>
                         {{ form.manufacture_year|add_class:"form-input" }}
                     </div>
+                    <div class="error-message hidden"></div>
                 </div>
             </div>
 
             <!-- Glass Position — full width -->
-            <div class="field-group" style="margin-top:1.25rem;">
-                <div class="field-label"><i class="fas fa-window-maximize"></i>Glass Position</div>
+            <div class="field-group" style="margin-top:1.25rem;" id="field-group-glass_position">
+                <div class="field-label"><i class="fas fa-window-maximize"></i>Glass Position <span style="color:#FF4757;">*</span></div>
                 <div class="field-icon-wrap select2-icon-wrap">
                     <i class="field-icon fas fa-border-all"></i>
                     {{ form.glass_position|add_class:"form-input" }}
                 </div>
+                <div class="error-message hidden"></div>
             </div>
 
             <div class="form-divider"></div>
@@ -343,26 +378,29 @@
             <!-- Success Fields -->
             <div id="success-fields" class="hidden form-panel panel-success">
                 <div class="field-grid-3">
-                    <div class="field-group">
-                        <div class="field-label"><i class="fas fa-coins"></i>Price (SAR)</div>
+                    <div class="field-group" id="field-group-price">
+                        <div class="field-label"><i class="fas fa-coins"></i>Price (SAR) <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-saudi-riyal"></i>
                             {{ form.price|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
-                    <div class="field-group">
+                    <div class="field-group" id="field-group-document">
                         <div class="field-label"><i class="fas fa-file-contract"></i>Document</div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-paperclip"></i>
                             {{ form.document|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
-                    <div class="field-group">
-                        <div class="field-label"><i class="fas fa-note-sticky"></i>Note</div>
+                    <div class="field-group" id="field-group-note">
+                        <div class="field-label"><i class="fas fa-note-sticky"></i>Note <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-pen-to-square"></i>
                             {{ form.note|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
                 </div>
             </div>
@@ -370,26 +408,29 @@
             <!-- Fail Fields -->
             <div id="fail-fields" class="hidden form-panel panel-danger">
                 <div class="field-grid-2">
-                    <div class="field-group">
-                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-triangle-exclamation" style="color:#FF4757;"></i>Failure Reason</div>
+                    <div class="field-group" id="field-group-reason">
+                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-triangle-exclamation" style="color:#FF4757;"></i>Failure Reason <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap select2-icon-wrap">
                             <i class="field-icon fas fa-circle-exclamation" style="color:#FF4757;"></i>
                             {{ form.reason|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
                     <div id="expected-price-field" class="field-group hidden">
-                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-tags" style="color:#FF4757;"></i>Expected Price (SAR)</div>
+                        <div class="field-label" style="color:#a0232e;"><i class="fas fa-tags" style="color:#FF4757;"></i>Expected Price (SAR) <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-saudi-riyal" style="color:#FF4757;opacity:1;"></i>
                             {{ form.expected_price|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
-                    <div id="fail-note-field" class="field-group hidden">
-                        <div class="field-label" style="color:#7a5a00;"><i class="fas fa-note-sticky" style="color:#FFB347;"></i>Note</div>
+                    <div id="fail-note-field" class="field-group">
+                        <div class="field-label" style="color:#7a5a00;"><i class="fas fa-note-sticky" style="color:#FFB347;"></i>Note <span style="color:#FF4757;">*</span></div>
                         <div class="field-icon-wrap">
                             <i class="field-icon fas fa-pen" style="color:#FFB347;opacity:1;"></i>
                             {{ form.note|add_class:"form-input" }}
                         </div>
+                        <div class="error-message hidden"></div>
                     </div>
                 </div>
             </div>
@@ -397,12 +438,13 @@
             <div class="form-divider"></div>
 
             <!-- Customer Source -->
-            <div class="field-group">
-                <div class="field-label"><i class="fas fa-bullhorn"></i>Customer Source</div>
+            <div class="field-group" id="field-group-customer_source">
+                <div class="field-label"><i class="fas fa-bullhorn"></i>Customer Source <span style="color:#FF4757;">*</span></div>
                 <div class="field-icon-wrap select2-icon-wrap">
                     <i class="field-icon fas fa-satellite-dish"></i>
                     {{ form.customer_source|add_class:"form-input" }}
                 </div>
+                <div class="error-message hidden"></div>
             </div>
 
             <!-- ─── Footer ─── -->
@@ -440,6 +482,7 @@ $(document).ready(function () {
         '#id_customer_source', '#id_reason', '#id_b2b_type'
     ];
     select2Fields.forEach(field => initSelect2(field));
+    
 
     // ---------- Vehicle Model AJAX ----------
     $('#id_vehicle_model').prop('disabled', true);
@@ -510,33 +553,33 @@ $(document).ready(function () {
     }
 
     function handleBusinessModelChange() {
-    resetDependentFields();
-    
-    // Get the selected option's text AND value for more reliable detection
-    const selectedOption = $bm.find('option:selected');
-    const bmText = selectedOption.text().toLowerCase();
-    const bmValue = $bm.val();  // e.g., "1", "2", etc. (but we'll rely on text patterns as fallback)
-    
-    // Define patterns for each business model type
-    const isB2C = bmText.includes('b2c') || bmText.includes('business to customer') || bmText.includes('customer');
-    const isB2B = bmText.includes('b2b') || bmText.includes('business to business');
-    const isB2G = bmText.includes('b2g') || bmText.includes('government') || bmText.includes('gov');
-    
-    // Debug: log to console (remove in production)
-    console.log('Business model selected:', bmText, { isB2C, isB2B, isB2G });
-    
-    if (isB2C) {
-        $salesSection.removeClass('hidden');
-    } else if (isB2B) {
-        $b2bTypeSection.removeClass('hidden');
-    } else if (isB2G) {
-        $govSection.removeClass('hidden');
-        $salesSection.removeClass('hidden');
-    } else {
-        // Fallback: if nothing matches, show nothing (or handle edge case)
-        console.warn('Unknown business model:', bmText);
+        resetDependentFields();
+        
+        // Get the selected option's text AND value for more reliable detection
+        const selectedOption = $bm.find('option:selected');
+        const bmText = selectedOption.text().toLowerCase();
+        const bmValue = $bm.val();  // e.g., "1", "2", etc. (but we'll rely on text patterns as fallback)
+        
+        // Define patterns for each business model type
+        const isB2C = bmText.includes('b2c') || bmText.includes('business to customer') || bmText.includes('customer');
+        const isB2B = bmText.includes('b2b') || bmText.includes('business to business');
+        const isB2G = bmText.includes('b2g') || bmText.includes('government') || bmText.includes('gov');
+        
+        // Debug: log to console (remove in production)
+        console.log('Business model selected:', bmText, { isB2C, isB2B, isB2G });
+        
+        if (isB2C) {
+            $salesSection.removeClass('hidden');
+        } else if (isB2B) {
+            $b2bTypeSection.removeClass('hidden');
+        } else if (isB2G) {
+            $govSection.removeClass('hidden');
+            $salesSection.removeClass('hidden');
+        } else {
+            // Fallback: if nothing matches, show nothing (or handle edge case)
+            console.warn('Unknown business model:', bmText);
+        }
     }
-}
 
     function handleB2BTypeChange() {
         const b2bVal = $('#id_b2b_type').val();
@@ -604,15 +647,21 @@ $(document).ready(function () {
     $('#id_b2b_type').on('change', handleB2BTypeChange);
     $('#id_sales_type').on('change', handleSalesTypeChange);
 
-    // Failure reason note logic
+        // Failure reason fields visibility logic
     $('#id_reason').on('change', function () {
-        var txt = $(this).find('option:selected').text().toLowerCase();
-        var isPriceHigh = txt.includes('price high');
-        var showNote = isPriceHigh || txt.includes('not available') || txt.includes('other') || txt.includes('payment issue');
-        $('#expected-price-field').toggleClass('hidden', !isPriceHigh);
-        if (!isPriceHigh) $('#id_expected_price').val('');
-        $('#fail-note-field').toggleClass('hidden', !showNote);
-        if (!showNote) $('#id_note').val('');
+        var reasonText = $(this).find('option:selected').text().toLowerCase();
+        var isPriceHigh = reasonText.includes('price high');
+        
+        // Expected price only visible when reason is "price high"
+        if (isPriceHigh) {
+            $('#expected-price-field').removeClass('hidden');
+        } else {
+            $('#expected-price-field').addClass('hidden');
+            $('#id_expected_price').val('');
+        }
+        
+        // Note always visible for any failure reason
+        $('#fail-note-field').removeClass('hidden');
     });
 
     // Maintenance type other note
@@ -621,6 +670,143 @@ $(document).ready(function () {
         var isOther = txt.includes('other');
         $('#maintenance-other-note-field').toggleClass('hidden', !isOther);
         if (!isOther) $('#id_maintenance_other_note').val('');
+    });
+
+    // ---------- Conditional Validation ----------
+    function showFieldError(fieldGroup, message) {
+        const errorDiv = $(fieldGroup).find('.error-message');
+        errorDiv.html('<i class="fas fa-exclamation-circle"></i> ' + message);
+        errorDiv.removeClass('hidden');
+        $(fieldGroup).addClass('error');
+    }
+
+    function clearFieldError(fieldGroup) {
+        const errorDiv = $(fieldGroup).find('.error-message');
+        errorDiv.addClass('hidden').html('');
+        $(fieldGroup).removeClass('error');
+    }
+
+    function validateField(fieldGroup, value, message) {
+        if (!value || (typeof value === 'string' && !value.trim())) {
+            showFieldError(fieldGroup, message);
+            return false;
+        }
+        clearFieldError(fieldGroup);
+        return true;
+    }
+
+    function isSectionVisible(section) {
+        return !$(section).hasClass('hidden');
+    }
+
+    $('#transaction-form').on('submit', function(e) {
+        let isValid = true;
+
+        // Clear all errors first
+        $('.error-message').addClass('hidden').html('');
+        $('.field-group').removeClass('error');
+
+        // Always required fields
+        // if (!validateField('#field-group-branch', $('#id_branch').val(), 'Branch is required')) isValid = false;
+        if (!validateField('#field-group-business_model', $('#id_business_model').val(), 'Business model is required')) isValid = false;
+        if (!validateField('#field-group-vehicle_brand', $('#id_vehicle_brand').val(), 'Vehicle brand is required')) isValid = false;
+        if (!validateField('#field-group-vehicle_model', $('#id_vehicle_model').val(), 'Vehicle model is required')) isValid = false;
+        if (!validateField('#field-group-manufacture_year', $('#id_manufacture_year').val(), 'Year is required')) isValid = false;
+        if (!validateField('#field-group-glass_position', $('#id_glass_position').val(), 'Glass position is required')) isValid = false;
+        if (!validateField('#field-group-customer_source', $('#id_customer_source').val(), 'Customer source is required')) isValid = false;
+
+        // Outcome validation
+        const outcome = $('#id_outcome').val();
+        if (!outcome) {
+            showFieldError('#outcome-tabs', 'Please select an outcome');
+            isValid = false;
+        } else if (outcome === 'success') {
+            if (!validateField('#field-group-price', $('#id_price').val(), 'Price is required for success')) isValid = false;
+            if (!validateField('#field-group-note', $('#id_note').val(), 'Note is required for success')) isValid = false;
+        } else if (outcome === 'fail') {
+            if (!validateField('#field-group-reason', $('#id_reason').val(), 'Failure reason is required')) isValid = false;
+                // Expected price only required if reason is "price high" and field is visible
+            if (isSectionVisible('#expected-price-field')) {
+                if (!validateField('#expected-price-field', $('#id_expected_price').val(), 'Expected price is required')) isValid = false;
+            }
+            if (!validateField('#fail-note-field', $('#fail-note-field').find('textarea').val(), 'Note is required for failure')) isValid = false;
+        }
+
+        // Conditional validation based on business model visibility
+        const bmText = $bm.find('option:selected').text().toLowerCase();
+        const isB2C = bmText.includes('b2c') || bmText.includes('business to customer') || bmText.includes('customer');
+        const isB2B = bmText.includes('b2b') || bmText.includes('business to business');
+        const isB2G = bmText.includes('b2g') || bmText.includes('government') || bmText.includes('gov');
+
+        if (isB2C) {
+            if (!validateField('#field-group-sales_type', $('#id_sales_type').val(), 'Sales type is required')) isValid = false;
+            
+            const salesText = $('#id_sales_type option:selected').text().toLowerCase();
+            if (salesText.includes('parts') && isSectionVisible('#parts-type-section')) {
+                if (!validateField('#field-group-parts_type', $('#id_parts_type').val(), 'Parts type is required')) isValid = false;
+            } else if (salesText.includes('maintenance') && isSectionVisible('#maintenance-type-section')) {
+                if (!validateField('#field-group-maintenance_type', $('#id_maintenance_type').val(), 'Maintenance type is required')) isValid = false;
+                
+                const maintText = $('#id_maintenance_type option:selected').text().toLowerCase();
+                if (maintText.includes('other') && isSectionVisible('#maintenance-other-note-field')) {
+                    if (!validateField('#maintenance-other-note-field', $('#id_maintenance_other_note').val(), 'Maintenance note is required')) isValid = false;
+                }
+            }
+        } else if (isB2B) {
+            const b2bVal = $('#id_b2b_type').val();
+            if (!validateField('#field-group-b2b_type', b2bVal, 'B2B customer type is required')) isValid = false;
+            
+            if (b2bVal === 'corporate') {
+                if (!validateField('#field-group-corporate_client', $('#id_corporate_client').val(), 'Corporate client is required')) isValid = false;
+                if (!validateField('#field-group-sales_type', $('#id_sales_type').val(), 'Sales type is required')) isValid = false;
+                
+                const salesText = $('#id_sales_type option:selected').text().toLowerCase();
+                if (salesText.includes('parts') && isSectionVisible('#parts-type-section')) {
+                    if (!validateField('#field-group-parts_type', $('#id_parts_type').val(), 'Parts type is required')) isValid = false;
+                } else if (salesText.includes('maintenance') && isSectionVisible('#maintenance-type-section')) {
+                    if (!validateField('#field-group-maintenance_type', $('#id_maintenance_type').val(), 'Maintenance type is required')) isValid = false;
+                    
+                    const maintText = $('#id_maintenance_type option:selected').text().toLowerCase();
+                    if (maintText.includes('other') && isSectionVisible('#maintenance-other-note-field')) {
+                        if (!validateField('#maintenance-other-note-field', $('#id_maintenance_other_note').val(), 'Maintenance note is required')) isValid = false;
+                    }
+                }
+            } else if (b2bVal === 'wholesale') {
+                if (!validateField('#field-group-wholesale_company', $('#id_wholesale_company').val(), 'Wholesale company is required')) isValid = false;
+            }
+        } else if (isB2G) {
+            if (!validateField('#field-group-government_org', $('#id_government_org').val(), 'Government organization is required')) isValid = false;
+            if (!validateField('#field-group-sales_type', $('#id_sales_type').val(), 'Sales type is required')) isValid = false;
+            
+            const salesText = $('#id_sales_type option:selected').text().toLowerCase();
+            if (salesText.includes('parts') && isSectionVisible('#parts-type-section')) {
+                if (!validateField('#field-group-parts_type', $('#id_parts_type').val(), 'Parts type is required')) isValid = false;
+            } else if (salesText.includes('maintenance') && isSectionVisible('#maintenance-type-section')) {
+                if (!validateField('#field-group-maintenance_type', $('#id_maintenance_type').val(), 'Maintenance type is required')) isValid = false;
+                
+                const maintText = $('#id_maintenance_type option:selected').text().toLowerCase();
+                if (maintText.includes('other') && isSectionVisible('#maintenance-other-note-field')) {
+                    if (!validateField('#maintenance-other-note-field', $('#id_maintenance_other_note').val(), 'Maintenance note is required')) isValid = false;
+                }
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first error
+            $('html, body').animate({
+                scrollTop: $('.field-group.error').first().offset().top - 100
+            }, 300);
+            return false;
+        }
+    });
+
+    // Clear errors on input change
+    $(document).on('change', '.form-input, select', function() {
+        const fieldGroup = $(this).closest('.field-group');
+        if (fieldGroup.length && $(this).val()) {
+            clearFieldError(fieldGroup);
+        }
     });
 
     // ---------- Page Load: Restore all fields (works for both create and edit) ----------
@@ -666,12 +852,23 @@ $(document).ready(function () {
             }
         }
 
-        // Restore outcome tab + dependent fail fields
+            // Restore outcome tab + dependent fail fields
         var outcome = $('#id_outcome').val();
-        if (outcome) toggleOutcome(outcome);
-
-        // Restore expected price + note visibility after reason is known
-        setTimeout(function () { $('#id_reason').trigger('change'); }, 150);
+        if (outcome) {
+            toggleOutcome(outcome);
+            if (outcome === 'fail') {
+                // Always hide expected price on page load unless reason is selected
+                setTimeout(function () { 
+                    var reasonText = $('#id_reason').find('option:selected').text().toLowerCase();
+                    if (reasonText.includes('price high') && $('#id_reason').val()) {
+                        $('#expected-price-field').removeClass('hidden');
+                    } else {
+                        $('#expected-price-field').addClass('hidden');
+                    }
+                    $('#fail-note-field').removeClass('hidden');
+                }, 150);
+            }
+        }
 
         // In edit mode: restore vehicle model & year without wiping saved values
         var savedBrandId = $('#id_vehicle_brand').val();
