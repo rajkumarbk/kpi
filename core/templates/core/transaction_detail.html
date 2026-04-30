@@ -88,14 +88,16 @@
                 </p>
             </div>
         </div>
+        {% if request.user.userprofile.role == 'admin' %}
         <div class="detail-header-right">
             <a href="{% url 'core:transaction_edit' transaction.id %}" class="btn-secondary" style="padding:0.6rem 1.1rem;font-size:0.85rem;text-decoration:none;">
-    <i class="fas fa-pen-to-square"></i>Edit
-</a>
+                <i class="fas fa-pen-to-square"></i>Edit
+            </a>
             <button class="btn-danger" id="detail-delete-btn">
-    <i class="fas fa-trash"></i>Delete
-</button>
+                <i class="fas fa-trash"></i>Delete
+            </button>
         </div>
+        {% endif %}
     </div>
 
     <!-- Outcome Banner -->

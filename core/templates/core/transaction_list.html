@@ -335,7 +335,9 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         <th>Outcome</th>
                         <th>Reason</th>
                         <th>Price</th>
+                        {% if request.user.userprofile.role == 'admin' %}
                         <th>Actions</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -367,6 +369,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                                 <span class="price-nil">—</span>
                             {% endif %}
                         </td>
+                        {% if request.user.userprofile.role == 'admin' %}
                         <td onclick="event.stopPropagation()">
                             <div style="display:flex;gap:0.4rem;">
                                 <!-- <a href="{% url 'core:transaction_detail' transaction.id %}" class="action-btn" title="View">
@@ -385,6 +388,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                                 </button>
                             </div>
                         </td>
+                        {% endif %}
                     </tr>
                     {% empty %}
                     <tr>
