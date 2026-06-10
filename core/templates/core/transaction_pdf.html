@@ -82,6 +82,7 @@
             <th>Branch</th>
             <th>Business Model</th>
             <th>Vehicle</th>
+            <th>Glass Position</th>
             <th>Outcome</th>
             <th>Reason</th>
             <th>Price (SAR)</th>
@@ -94,6 +95,7 @@
             <td>{{ t.branch.code }}</td>
             <td>{{ t.business_model.name }}</td>
             <td>{{ t.vehicle_brand.name }} {{ t.vehicle_model.name }}</td>
+            <td>{{ t.glass_position.name }}</td>
             <td>
                 {% if t.outcome == 'success' %}
                     <span class="success">✔ Success</span>
@@ -108,7 +110,7 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" style="text-align:center;color:#999;">No records found</td></tr>
+        <tr><td colspan="8" style="text-align:center;color:#999;">No records found</td></tr>
         {% endfor %}
     </tbody>
 </table>

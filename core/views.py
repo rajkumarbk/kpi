@@ -339,12 +339,12 @@ def dashboard(request):
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models import Sum
-from weasyprint import HTML
 
 @login_required
 def transaction_pdf(request):
+    from weasyprint import HTML
     qs = Transaction.objects.select_related(
-        'branch', 'business_model', 'vehicle_brand', 'vehicle_model'
+        'branch', 'business_model', 'vehicle_brand', 'vehicle_model', 'glass_position'
     ).order_by('-created_at')
 
     user_profile = request.user.userprofile
@@ -354,6 +354,7 @@ def transaction_pdf(request):
     branch_id      = request.GET.get('branch')
     business_model = request.GET.get('business_model')
     outcome        = request.GET.get('outcome')
+    glass_position = request.GET.get('glass_position')
     date_from      = request.GET.get('date_from')
     date_to        = request.GET.get('date_to')
 
@@ -363,6 +364,8 @@ def transaction_pdf(request):
         qs = qs.filter(business_model_id=business_model)
     if outcome:
         qs = qs.filter(outcome=outcome)
+    if glass_position:
+        qs = qs.filter(glass_position_id=glass_position)
     if date_from:
         qs = qs.filter(created_at__date__gte=date_from)
     if date_to:

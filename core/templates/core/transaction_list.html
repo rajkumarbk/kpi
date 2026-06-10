@@ -335,6 +335,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         <th>Branch</th>
                         <th>Business Model</th>
                         <th>Vehicle</th>
+                        <th>Glass Position</th>
                         <th>Outcome</th>
                         <th>Reason</th>
                         <th>Price</th>
@@ -351,6 +352,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         <td>{{ transaction.branch.code }}</td>
                         <td><span class="badge badge-type">{{ transaction.business_model.name }}</span></td>
                         <td>{{ transaction.vehicle_brand.name }} {{ transaction.vehicle_model.name }}</td>
+                        <td>{{ transaction.glass_position.name }}</td>
                         <td>
                             {% if transaction.outcome == 'success' %}
                                 <span class="badge badge-success"><i class="fas fa-circle-check"></i>Success</span>
