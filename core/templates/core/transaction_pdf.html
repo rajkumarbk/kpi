@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @page {
+        size: A4 landscape;
+        margin: 1.5cm;
+    }
+    body {
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 11px;
+        color: #1a1a2e;
+    }
+    .header {
+        margin-bottom: 14px;
+        border-bottom: 2px solid #6C47FF;
+        padding-bottom: 8px;
+    }
+    .header h1 {
+        font-size: 17px;
+        font-weight: bold;
+        margin: 0 0 6px 0;
+        color: #6C47FF;
+    }
+    .meta-table {
+        width: 100%;
+        font-size: 10px;
+        color: #444;
+    }
+    .meta-table td {
+        padding: 1px 12px 1px 0;
+    }
+    .meta-table td strong { color: #1a1a2e; }
+    table.data {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    table.data thead th {
+        background-color: #6C47FF;
+        color: white;
+        padding: 6px 8px;
+        text-align: left;
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    table.data tbody tr.even { background-color: #f5f3ff; }
+    table.data tbody tr.odd  { background-color: #ffffff; }
+    table.data tbody td {
+        padding: 5px 8px;
+        border-bottom: 1px solid #e0daf7;
+        font-size: 10px;
+        color: #333;
+    }
+    .success { color: #0a6654; font-weight: bold; }
+    .fail    { color: #7a1c24; font-weight: bold; }
+    .price   { color: #0a6654; font-weight: bold; }
+    .footer  { margin-top: 12px; font-size: 9px; color: #999; text-align: right; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Transaction Report</h1>
+    <table class="meta-table">
+        <tr>
+            <td><strong>Branch:</strong> {{ branch_label }}</td>
+            <td><strong>From:</strong> {{ date_from|default:"—" }}</td>
+            <td><strong>To:</strong> {{ date_to|default:"—" }}</td>
+            <td><strong>Records:</strong> {{ total_count }}</td>
+            <td><strong>Total Revenue:</strong> SAR {{ total_revenue|floatformat:2 }}</td>
+        </tr>
+    </table>
+</div>
+
+<table class="data">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Branch</th>
+            <th>Business Model</th>
+            <th>Vehicle</th>
+            <th>Outcome</th>
+            <th>Reason</th>
+            <th>Price (SAR)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in transactions %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{ t.created_at|date:"M d, Y H:i" }}</td>
+            <td>{{ t.branch.code }}</td>
+            <td>{{ t.business_model.name }}</td>
+            <td>{{ t.vehicle_brand.name }} {{ t.vehicle_model.name }}</td>
+            <td>
+                {% if t.outcome == 'success' %}
+                    <span class="success">✔ Success</span>
+                {% else %}
+                    <span class="fail">✘ Failed</span>
+                {% endif %}
+            </td>
+            <td>{{ t.reason|default:"—" }}</td>
+            <td>
+                {% if t.price %}<span class="price">{{ t.price }}</span>
+                {% else %}—{% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;color:#999;">No records found</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="footer">Generated on {% now "M d, Y H:i" %}</div>
+
+</body>
+</html>

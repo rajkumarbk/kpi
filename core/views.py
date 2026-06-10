@@ -136,7 +136,7 @@ def transaction_list(request):
     avg_transaction = total_revenue / success_count if success_count > 0 else 0
     
     # Pagination
-    paginator = Paginator(transactions, 20)
+    paginator = Paginator(transactions, 50)
     page = request.GET.get('page')
     transactions = paginator.get_page(page)
     
@@ -335,3 +335,70 @@ def dashboard(request):
         'branches': Branch.objects.all().order_by('code'),
     }
     return render(request, 'core/dashboard.html', context)
+
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from xhtml2pdf import pisa
+import io
+
+@login_required
+def transaction_pdf(request):
+    qs = Transaction.objects.select_related(
+        'branch', 'business_model', 'vehicle_brand', 'vehicle_model'
+    ).order_by('-created_at')
+
+    user_profile = request.user.userprofile
+    if user_profile.role != 'admin':
+        qs = qs.filter(branch=user_profile.branch)
+
+    branch_id      = request.GET.get('branch')
+    business_model = request.GET.get('business_model')
+    outcome        = request.GET.get('outcome')
+    date_from      = request.GET.get('date_from')
+    date_to        = request.GET.get('date_to')
+
+    if branch_id:
+        qs = qs.filter(branch_id=branch_id)
+    if business_model:
+        qs = qs.filter(business_model_id=business_model)
+    if outcome:
+        qs = qs.filter(outcome=outcome)
+    if date_from:
+        qs = qs.filter(created_at__date__gte=date_from)
+    if date_to:
+        qs = qs.filter(created_at__date__lte=date_to)
+
+    # branch label
+    if branch_id:
+        try:
+            branch_label = str(Branch.objects.get(pk=branch_id))
+        except Branch.DoesNotExist:
+            branch_label = 'All Branches'
+    elif user_profile.role != 'admin':
+        branch_label = str(user_profile.branch)
+    else:
+        branch_label = 'All Branches'
+
+    total_revenue = qs.aggregate(total=Sum('price'))['total'] or 0
+
+    context = {
+        'transactions': qs,
+        'branch_label': branch_label,
+        'date_from': date_from,
+        'date_to': date_to,
+        'total_count': qs.count(),
+        'total_revenue': total_revenue,
+    }
+
+    html_string = render_to_string('core/transaction_pdf.html', context, request=request)
+
+    buffer = io.BytesIO()
+    pisa.CreatePDF(html_string, dest=buffer, encoding='utf-8')
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="transactions.pdf"'
+    return response

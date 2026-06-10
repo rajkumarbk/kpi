@@ -268,6 +268,9 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                     <button type="submit" class="btn-primary">
                         <i class="fas fa-filter"></i>Filter
                     </button>
+                    <a href="#" id="print-pdf-btn" class="btn-secondary" style="display:inline-flex;align-items:center;gap:0.4rem;">
+                        <i class="fas fa-file-pdf"></i>Print PDF
+                    </a>
                 </div>
             </div>
         </form>
@@ -466,6 +469,14 @@ $(document).ready(function () {
 
     $('#filter-branch, #filter-ctype, #filter-outcome').on('change', checkFilters);
     $('#filter-date-from, #filter-date-to').on('change', checkFilters);
+
+    /* ─── Print PDF ─── */
+    $('#print-pdf-btn').on('click', function(e) {
+        e.preventDefault();
+        var params = new URLSearchParams(window.location.search);
+        params.delete('page');  // always print all, not paginated
+        window.location.href = "{% url 'core:transaction_pdf' %}?" + params.toString();
+    });
 
     /* icon offset for Select2 rendered fields */
     /* Select2 replaces the <select> — the icon sits in .field-icon-wrap, which also wraps the Select2 container */
