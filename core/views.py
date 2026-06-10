@@ -338,10 +338,8 @@ def dashboard(request):
 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from xhtml2pdf import pisa
-import io
+from weasyprint import HTML
 
 @login_required
 def transaction_pdf(request):
@@ -393,11 +391,7 @@ def transaction_pdf(request):
     }
 
     html_string = render_to_string('core/transaction_pdf.html', context, request=request)
-
-    buffer = io.BytesIO()
-    pisa.CreatePDF(html_string, dest=buffer, encoding='utf-8')
-    pdf = buffer.getvalue()
-    buffer.close()
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="transactions.pdf"'
