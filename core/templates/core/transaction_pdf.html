@@ -1,90 +1,198 @@
 <!DOCTYPE html>
+{% load static %}
 <html>
 <head>
 <meta charset="utf-8">
 <style>
     @page {
         size: A4 landscape;
-        margin: 1.5cm;
+        margin: 0.3cm 1.4cm 1.2cm 1.4cm;
     }
+    * { box-sizing: border-box; }
     body {
-        font-family: Helvetica, Arial, sans-serif;
-        font-size: 11px;
-        color: #1a1a2e;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 10.5px;
+        color: #1e1b2e;
+        margin: 0;
     }
-    .header {
-        margin-bottom: 14px;
-        border-bottom: 2px solid #6C47FF;
-        padding-bottom: 8px;
+
+    /* ---------- Header ---------- */
+    .brand-header {
+        text-align: center;
+        padding-bottom: 12px;
+        border-bottom: 3px solid #6C47FF;
+        margin-bottom: 16px;
+        
     }
-    .header h1 {
-        font-size: 17px;
-        font-weight: bold;
-        margin: 0 0 6px 0;
+    .brand-header img {
+        height: 70px;
+        object-fit: contain;
+        margin-bottom: 5px;
+        margin-top: 0px;
+    }
+    .report-title h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
         color: #6C47FF;
+        letter-spacing: -0.3px;
     }
-    .meta-table {
-        width: 100%;
+    .report-title span {
         font-size: 10px;
-        color: #444;
+        color: #8a8398;
     }
-    .meta-table td {
-        padding: 1px 12px 1px 0;
+
+    /* ---------- Summary stat cards ---------- */
+    .stats-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 18px;
     }
-    .meta-table td strong { color: #1a1a2e; }
+    .stat-card {
+        flex: 1;
+        background: #f7f5ff;
+        border: 1px solid #e4ddff;
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
+    .stat-card .label {
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #8a8398;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+    .stat-card .value {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1e1b2e;
+    }
+    .stat-card.accent .value { color: #6C47FF; }
+    .stat-card.money .value { color: #0a6654; }
+
+    /* ---------- Filter chips ---------- */
+    .filters-row {
+        margin-bottom: 14px;
+        font-size: 9px;
+        color: #2f2f2f;
+    }
+    .filters-row .chip {
+        display: inline-block;
+        background: #ffffff;
+        border: 1px solid #ded7f0;
+        border-radius: 12px;
+        padding: 3px 10px;
+        margin-right: 6px;
+    }
+    .filters-row .chip strong { color: #1e1b2e; }
+
+    /* ---------- Table ---------- */
     table.data {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
     }
     table.data thead th {
         background-color: #6C47FF;
-        color: white;
-        padding: 6px 8px;
+        color: #ffffff;
+        padding: 7px 8px;
         text-align: left;
-        font-size: 9px;
-        font-weight: bold;
+        font-size: 8.5px;
+        font-weight: 700;
         text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
-    table.data tbody tr.even { background-color: #f5f3ff; }
+    table.data thead th:first-child { border-radius: 5px 0 0 0; }
+    table.data thead th:last-child { border-radius: 0 5px 0 0; }
+
+    table.data tbody tr.even { background-color: #f7f5ff; }
     table.data tbody tr.odd  { background-color: #ffffff; }
     table.data tbody td {
-        padding: 5px 8px;
-        border-bottom: 1px solid #e0daf7;
-        font-size: 10px;
+        padding: 6px 8px;
+        border-bottom: 1px solid #ece7f7;
+        font-size: 9.5px;
         color: #333;
+        vertical-align: top;
     }
-    .success { color: #0a6654; font-weight: bold; }
-    .fail    { color: #7a1c24; font-weight: bold; }
-    .price   { color: #0a6654; font-weight: bold; }
-    .footer  { margin-top: 12px; font-size: 9px; color: #999; text-align: right; }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 8.5px;
+        font-weight: 700;
+    }
+    .badge.success { background: #e3f6ef; color: #0a6654; }
+    .badge.fail    { background: #fbe9e9; color: #7a1c24; }
+
+    .price   { color: #0a6654; font-weight: 700; }
+    .note-cell { white-space: normal; word-break: break-word; max-width: 150px; color: #5c5568; }
+    .muted { color: #b3aec2; }
+
+    .footer {
+        margin-top: 14px;
+        font-size: 8.5px;
+        color: #2f2f2f;
+        text-align: right;
+        border-top: 1px solid #ece7f7;
+        padding-top: 6px;
+    }
 </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>Transaction Report</h1>
-    <table class="meta-table">
-        <tr>
-            <td><strong>Branch:</strong> {{ branch_label }}</td>
-            <td><strong>From:</strong> {{ date_from|default:"—" }}</td>
-            <td><strong>To:</strong> {{ date_to|default:"—" }}</td>
-            <td><strong>Records:</strong> {{ total_count }}</td>
-            <td><strong>Total Revenue:</strong> SAR {{ total_revenue|floatformat:2 }}</td>
-        </tr>
-    </table>
+<!-- ---------- Company header (conditional logo, top-center) ---------- -->
+<div class="brand-header">
+    {% if company == 'Watam Auto Glass' %}
+        <img src="{% static 'img/header_watam.png' %}" alt="Watam Auto Glass">
+    {% elif company == 'Al Salem Auto Glass' %}
+        <img src="{% static 'img/header_salem.png' %}" alt="Al Salem Auto Glass">
+    {% endif %}
+    <div class="report-title">
+        <h1>Transaction Report</h1>
+        <div class="filters-row">
+    {% if date_from and date_to %}
+        <span>Period: {{ date_from|date:"Y/m/d" }} To {{ date_to|date:"Y/m/d" }}</span>
+    {% else %}
+        <span>Period: All Time</span>
+    {% endif %}
 </div>
+    </div>
+</div>
+
+<!-- ---------- Summary stat cards ---------- -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="label">Records</div>
+        <div class="value">{{ total_count }}</div>
+    </div>
+    <div class="stat-card money">
+        <div class="label">Total Revenue</div>
+        <div class="value">SAR {{ total_revenue|floatformat:2 }}</div>
+    </div>
+    <div class="stat-card accent">
+        <div class="label">Branch</div>
+        <div class="value" style="font-size:11px;">{{ branch_label }}</div>
+    </div>
+    <div class="stat-card accent">
+        <div class="label">Reason</div>
+        <div class="value" style="font-size:11px;">{{ reason_label|default:"All Reasons" }}</div>
+    </div>
+</div>
+
+<!-- ---------- Filter chips ---------- -->
+
 
 <table class="data">
     <thead>
         <tr>
             <th>Date</th>
-            <th>Branch</th>
             <th>Business Model</th>
             <th>Vehicle</th>
             <th>Glass Position</th>
             <th>Outcome</th>
             <th>Reason</th>
+            <th>Note</th>
             <th>Price (SAR)</th>
         </tr>
     </thead>
@@ -92,30 +200,31 @@
         {% for t in transactions %}
         <tr class="{% cycle 'odd' 'even' %}">
             <td>{{ t.created_at|date:"M d, Y H:i" }}</td>
-            <td>{{ t.branch.code }}</td>
             <td>{{ t.business_model.name }}</td>
             <td>{{ t.vehicle_brand.name }} {{ t.vehicle_model.name }}</td>
             <td>{{ t.glass_position.name }}</td>
             <td>
                 {% if t.outcome == 'success' %}
-                    <span class="success">✔ Success</span>
+                    <span class="badge success">✔ Success</span>
                 {% else %}
-                    <span class="fail">✘ Failed</span>
+                    <span class="badge fail">✘ Failed</span>
                 {% endif %}
             </td>
             <td>{{ t.reason|default:"—" }}</td>
+            <td class="note-cell" dir="auto">{{ t.note|default:"—" }}</td>
             <td>
                 {% if t.price %}<span class="price">{{ t.price }}</span>
-                {% else %}—{% endif %}
+                {% else %}<span class="muted">—</span>{% endif %}
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" style="text-align:center;color:#999;">No records found</td></tr>
+        <tr><td colspan="8" style="text-align:center;color:#999; padding:20px;">No records found</td></tr>
         {% endfor %}
     </tbody>
 </table>
 
-<div class="footer">Generated on {% now "M d, Y H:i" %}</div>
-
+<div class="footer">
+    <span>Generated {% now "F j, Y \a\t g:i A" %}</span>
+</div>
 </body>
 </html>

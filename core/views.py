@@ -1,8 +1,10 @@
+from urllib import response
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django import forms
 from .forms import TransactionForm, LoginForm
-from .models import Transaction, VehicleModel, Branch, BusinessModel, SalesType, PartsType, VehicleBrand, ManufactureYear, GlassPosition, CustomerSource, WholesaleCompany, CorporateClient, GovernmentOrganization
+from .models import Transaction, VehicleModel, Branch, BusinessModel, Reason, SalesType, PartsType, VehicleBrand, ManufactureYear, GlassPosition, CustomerSource, WholesaleCompany, CorporateClient, GovernmentOrganization
 from django.http import JsonResponse
 from django.db.models import Count, Q, Sum, Avg
 from django.utils import timezone
@@ -110,6 +112,7 @@ def transaction_list(request):
     branch = request.GET.get('branch')
     business_model = request.GET.get('business_model')
     outcome = request.GET.get('outcome')
+    reason = request.GET.get('reason')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
@@ -119,6 +122,8 @@ def transaction_list(request):
         transactions = transactions.filter(business_model_id=business_model)
     if outcome:
         transactions = transactions.filter(outcome=outcome)
+    if reason:
+        transactions = transactions.filter(reason_id=reason)
     if date_from:
         transactions = transactions.filter(created_at__date__gte=date_from)
     if date_to:
@@ -149,6 +154,7 @@ def transaction_list(request):
         'avg_transaction': avg_transaction,
         'branches': Branch.objects.all(),
         'business_models': BusinessModel.objects.all(),
+        'reasons': Reason.objects.all(),
     }
     return render(request, 'core/transaction_list.html', context)
 
@@ -344,7 +350,7 @@ from django.db.models import Sum
 def transaction_pdf(request):
     from weasyprint import HTML
     qs = Transaction.objects.select_related(
-        'branch', 'business_model', 'vehicle_brand', 'vehicle_model', 'glass_position'
+        'branch', 'business_model', 'vehicle_brand', 'vehicle_model', 'glass_position', 'reason'
     ).order_by('-created_at')
 
     user_profile = request.user.userprofile
@@ -354,6 +360,7 @@ def transaction_pdf(request):
     branch_id      = request.GET.get('branch')
     business_model = request.GET.get('business_model')
     outcome        = request.GET.get('outcome')
+    reason         = request.GET.get('reason')
     glass_position = request.GET.get('glass_position')
     date_from      = request.GET.get('date_from')
     date_to        = request.GET.get('date_to')
@@ -364,6 +371,8 @@ def transaction_pdf(request):
         qs = qs.filter(business_model_id=business_model)
     if outcome:
         qs = qs.filter(outcome=outcome)
+    if reason:
+        qs = qs.filter(reason_id=reason)
     if glass_position:
         qs = qs.filter(glass_position_id=glass_position)
     if date_from:
@@ -382,20 +391,47 @@ def transaction_pdf(request):
     else:
         branch_label = 'All Branches'
 
+    # reason label
+    if reason:
+        try:
+            reason_label = str(Reason.objects.get(pk=reason))
+        except Reason.DoesNotExist:
+            reason_label = 'All Reasons'
+    else:
+        reason_label = 'All Reasons'
+
+    # company detection for header logo
+    company = None
+    if branch_id:
+        try:
+            company = Branch.objects.get(pk=branch_id).company
+        except Branch.DoesNotExist:
+            company = None
+    elif user_profile.role != 'admin':
+        company = user_profile.branch.company
+    elif qs.exists():
+        companies = qs.values_list('branch__company', flat=True).distinct()
+        if companies.count() == 1:
+            company = companies[0]
+
     total_revenue = qs.aggregate(total=Sum('price'))['total'] or 0
 
     context = {
         'transactions': qs,
         'branch_label': branch_label,
+        'reason_label': reason_label,
         'date_from': date_from,
         'date_to': date_to,
         'total_count': qs.count(),
         'total_revenue': total_revenue,
+        'company': company,
     }
 
     html_string = render_to_string('core/transaction_pdf.html', context, request=request)
     pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="transactions.pdf"'
+    filename = f"Transactions_{branch_label}_{date_from or 'all'}_To_{date_to or 'all'}.pdf"
+    filename = filename.replace(' ', '_')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response

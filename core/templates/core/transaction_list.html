@@ -242,6 +242,20 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                     </div>
                 </div>
 
+                <!-- Reason -->
+                <div class="field-group">
+                    <div class="field-label"><i class="fas fa-triangle-exclamation"></i>Reason</div>
+                    <div class="field-icon-wrap">
+                        <i class="field-icon fas fa-triangle-exclamation"></i>
+                        <select name="reason" class="form-input" id="filter-reason">
+                            <option value="">All Reasons</option>
+                            {% for reason in reasons %}
+                                <option value="{{ reason.id }}" {% if request.GET.reason == reason.id|stringformat:"s" %}selected{% endif %}>{{ reason.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Date From -->
                 <div class="field-group">
                     <div class="field-label"><i class="fas fa-calendar-days"></i>Date From</div>
