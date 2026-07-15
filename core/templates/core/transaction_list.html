@@ -307,7 +307,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
                     <div class="stat-label">Total Revenue</div>
-                    <div class="stat-value" style="color:#0a6654;">SAR {{ total_revenue|floatformat:2 }}</div>
+                    <div class="stat-value" style="color:#0a6654;">⃁{{ total_revenue|floatformat:2 }}</div>
                 </div>
                 <div class="stat-icon" style="background:rgba(0,201,167,0.1);">
                     <i class="fas fa-money-bill-wave" style="color:#00C9A7;"></i>
@@ -329,7 +329,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
                     <div class="stat-label">Avg. Transaction</div>
-                    <div class="stat-value" style="color:var(--primary);">SAR {{ avg_transaction|floatformat:2 }}</div>
+                    <div class="stat-value" style="color:var(--primary);">⃁{{ avg_transaction|floatformat:2 }}</div>
                 </div>
                 <div class="stat-icon" style="background:var(--primary-subtle);">
                     <i class="fas fa-calculator" style="color:var(--primary);"></i>
@@ -352,6 +352,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         <th>Glass Position</th>
                         <th>Outcome</th>
                         <th>Reason</th>
+                        <th>Note</th>
                         <th>Price</th>
                         {% if request.user.userprofile.role == 'admin' %}
                         <th>Actions</th>
@@ -381,9 +382,16 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                                 <span style="color:var(--text-muted);">—</span>
                             {% endif %}
                         </td>
+                        <td class="note-cell" dir="auto">
+                            {% if transaction.note %}
+                                {{ transaction.note }}
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if transaction.price %}
-                                <span class="price-val">SAR {{ transaction.price }}</span>
+                                <span class="price-val">⃁{{ transaction.price }}</span>
                             {% else %}
                                 <span class="price-nil">—</span>
                             {% endif %}

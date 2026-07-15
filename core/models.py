@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
+#from django.utils import timezone
 
 # ---------- Master Data Models ----------
 class Branch(models.Model):
@@ -191,6 +192,7 @@ class Transaction(models.Model):
     expected_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     maintenance_other_note = models.TextField(blank=True)
 
+    #created_at = models.DateTimeField(default=timezone.now, editable=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

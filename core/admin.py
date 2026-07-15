@@ -104,4 +104,5 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'branch', 'business_model', 'outcome', 'created_at')
     list_filter = ('branch', 'business_model', 'outcome', 'created_at')
     search_fields = ('corporate_client__name', 'government_org__name')
+    #readonly_fields = ()
     readonly_fields = ('created_at',)
