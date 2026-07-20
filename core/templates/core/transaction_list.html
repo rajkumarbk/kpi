@@ -34,7 +34,7 @@
 /* Filter card */
 .filter-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 1rem;
 }
 @media (max-width: 900px) { .filter-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -104,7 +104,7 @@ thead tr {
 }
 thead th {
     padding: 0.7rem 1rem !important;
-    text-align: left;
+    text-align: center;
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--text-secondary);
@@ -118,7 +118,7 @@ tbody tr {
 }
 tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: var(--primary-subtle); }
-tbody td { padding: 0.7rem 1rem !important; font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap; }
+tbody td { padding: 0.7rem 1rem !important; font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap; text-align: center; }
 tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
 
 /* Badges */
@@ -256,12 +256,29 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                     </div>
                 </div>
 
+            <div class="field-group">
+            <div class="field-label"><i class="fas fa-calendar-week"></i>Day of Week</div>
+            <div class="field-icon-wrap">
+                <i class="field-icon fas fa-calendar-week"></i>
+                <select name="day_of_week" class="form-input" id="filter-day">
+                        <option value="">All Days</option>
+                        <option value="1" {% if request.GET.day_of_week == "1" %}selected{% endif %}>Sunday</option>
+                        <option value="2" {% if request.GET.day_of_week == "2" %}selected{% endif %}>Monday</option>
+                        <option value="3" {% if request.GET.day_of_week == "3" %}selected{% endif %}>Tuesday</option>
+                        <option value="4" {% if request.GET.day_of_week == "4" %}selected{% endif %}>Wednesday</option>
+                        <option value="5" {% if request.GET.day_of_week == "5" %}selected{% endif %}>Thursday</option>
+                        <option value="6" {% if request.GET.day_of_week == "6" %}selected{% endif %}>Friday</option>
+                        <option value="7" {% if request.GET.day_of_week == "7" %}selected{% endif %}>Saturday</option>
+                    </select>
+                </div>
+                </div>
+
                 <!-- Date From -->
                 <div class="field-group">
                     <div class="field-label"><i class="fas fa-calendar-days"></i>Date From</div>
                     <div class="field-icon-wrap">
                         <i class="field-icon fas fa-calendar-days"></i>
-                        <input type="date" name="date_from" id="filter-date-from" value="{{ request.GET.date_from }}" class="form-input">
+                        <input type="date" name="date_from" id="filter-date-from" value="{{ request.GET.date_from }}" class="form-input" onclick="this.showPicker()">
                     </div>
                 </div>
 
@@ -270,7 +287,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                     <div class="field-label"><i class="fas fa-calendar-check"></i>Date To</div>
                     <div class="field-icon-wrap">
                         <i class="field-icon fas fa-calendar-check"></i>
-                        <input type="date" name="date_to" id="filter-date-to" value="{{ request.GET.date_to }}" class="form-input">
+                        <input type="date" name="date_to" id="filter-date-to" value="{{ request.GET.date_to }}" class="form-input" onclick="this.showPicker()">
                     </div>
                 </div>
 
@@ -283,7 +300,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         <i class="fas fa-filter"></i>Filter
                     </button>
                     <a href="#" id="print-pdf-btn" class="btn-secondary" style="display:inline-flex;align-items:center;gap:0.4rem;">
-                        <i class="fas fa-file-pdf"></i>Print PDF
+                        <i class="fas fa-file-pdf"></i>Print
                     </a>
                 </div>
             </div>
@@ -352,8 +369,8 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         <th>Glass Position</th>
                         <th>Outcome</th>
                         <th>Reason</th>
-                        <th>Note</th>
                         <th>Price</th>
+                        <th>Note</th>
                         {% if request.user.userprofile.role == 'admin' %}
                         <th>Actions</th>
                         {% endif %}
@@ -382,18 +399,18 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                                 <span style="color:var(--text-muted);">—</span>
                             {% endif %}
                         </td>
-                        <td class="note-cell" dir="auto">
-                            {% if transaction.note %}
-                                {{ transaction.note }}
-                            {% else %}
-                                <span style="color:var(--text-muted);">—</span>
-                            {% endif %}
-                        </td>
                         <td>
                             {% if transaction.price %}
                                 <span class="price-val">⃁{{ transaction.price }}</span>
                             {% else %}
                                 <span class="price-nil">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="note-cell" dir="auto">
+                            {% if transaction.note %}
+                                {{ transaction.note }}
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
                             {% endif %}
                         </td>
                         {% if request.user.userprofile.role == 'admin' %}
@@ -473,10 +490,12 @@ $(document).ready(function () {
     initSelect2('#filter-branch', 'All Branches');
     initSelect2('#filter-ctype', 'All Types');
     initSelect2('#filter-outcome', 'All');
+    initSelect2('#filter-reason', 'All Reasons');
+    initSelect2('#filter-day', 'All Days');
 
     /* ─── Clear button visibility ─── */
     var params = new URLSearchParams(window.location.search);
-    var filterKeys = ['branch', 'business_model', 'outcome', 'date_from', 'date_to'];
+    var filterKeys = ['branch', 'business_model', 'outcome', 'reason', 'day_of_week', 'date_from', 'date_to'];
     var hasFilter = filterKeys.some(function(k) { return params.get(k); });
     if (hasFilter) $('#clear-btn').show();
 
@@ -485,13 +504,15 @@ $(document).ready(function () {
         var branch   = $('#filter-branch').val();
         var ctype    = $('#filter-ctype').val();
         var outcome  = $('#filter-outcome').val();
+        var reason   = $('#filter-reason').val();
+        var dayOfWeek = $('#filter-day').val();
         var dateFrom = $('#filter-date-from').val();
         var dateTo   = $('#filter-date-to').val();
-        var any = branch || ctype || outcome || dateFrom || dateTo;
+        var any = branch || ctype || outcome || reason || dayOfWeek || dateFrom || dateTo;
         $('#clear-btn').toggle(!!any);
     }
 
-    $('#filter-branch, #filter-ctype, #filter-outcome').on('change', checkFilters);
+    $('#filter-branch, #filter-ctype, #filter-outcome, #filter-reason, #filter-day').on('change', checkFilters);
     $('#filter-date-from, #filter-date-to').on('change', checkFilters);
 
     /* ─── Print PDF ─── */

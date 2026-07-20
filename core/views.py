@@ -115,7 +115,8 @@ def transaction_list(request):
     reason = request.GET.get('reason')
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
-    
+    day_of_week = request.GET.get('day_of_week')
+
     if branch and request.user.userprofile.role == 'admin':
         transactions = transactions.filter(branch_id=branch)
     if business_model:
@@ -128,6 +129,8 @@ def transaction_list(request):
         transactions = transactions.filter(created_at__date__gte=date_from)
     if date_to:
         transactions = transactions.filter(created_at__date__lte=date_to)
+    if day_of_week:
+        transactions = transactions.filter(created_at__week_day=day_of_week)
     
     transactions = transactions.order_by('-created_at')
     
@@ -155,6 +158,7 @@ def transaction_list(request):
         'branches': Branch.objects.all(),
         'business_models': BusinessModel.objects.all(),
         'reasons': Reason.objects.all(),
+        'day_of_week': day_of_week,
     }
     return render(request, 'core/transaction_list.html', context)
 
