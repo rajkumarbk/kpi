@@ -717,15 +717,20 @@ $(document).ready(function () {
 
         // Outcome validation
         const outcome = $('#id_outcome').val();
+
+        // sync note into whichever field actually wins submission (duplicate name="note")
+        if (outcome === 'success') {
+            $('#fail-note-field textarea').val($('#field-group-note textarea').val());
+        }
+
         if (!outcome) {
             showFieldError('#outcome-tabs', 'Please select an outcome');
             isValid = false;
         } else if (outcome === 'success') {
             if (!validateField('#field-group-price', $('#id_price').val(), 'Price is required for success')) isValid = false;
-            if (!validateField('#field-group-note', $('#id_note').val(), 'Note is required for success')) isValid = false;
+            if (!validateField('#field-group-note', $('#field-group-note textarea').val(), 'Note is required for success')) isValid = false;
         } else if (outcome === 'fail') {
             if (!validateField('#field-group-reason', $('#id_reason').val(), 'Failure reason is required')) isValid = false;
-                // Expected price only required if reason is "price high" and field is visible
             if (isSectionVisible('#expected-price-field')) {
                 if (!validateField('#expected-price-field', $('#id_expected_price').val(), 'Expected price is required')) isValid = false;
             }
