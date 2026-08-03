@@ -728,7 +728,7 @@ $(document).ready(function () {
             isValid = false;
         } else if (outcome === 'success') {
             if (!validateField('#field-group-price', $('#id_price').val(), 'Price is required for success')) isValid = false;
-            if (!validateField('#field-group-note', $('#field-group-note textarea').val(), 'Note is required for success')) isValid = false;
+            // if (!validateField('#field-group-note', $('#field-group-note textarea').val(), 'Note is required for success')) isValid = false;
         } else if (outcome === 'fail') {
             if (!validateField('#field-group-reason', $('#id_reason').val(), 'Failure reason is required')) isValid = false;
             if (isSectionVisible('#expected-price-field')) {

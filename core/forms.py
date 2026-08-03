@@ -53,7 +53,7 @@ class TransactionForm(forms.ModelForm):
         if self.user and hasattr(self.user, 'userprofile') and self.user.userprofile.role != 'admin':
             self.fields['branch'].queryset = Branch.objects.filter(id=self.user.userprofile.branch.id)
             self.fields['branch'].initial = self.user.userprofile.branch
-            self.fields['branch'].widget = forms.HiddenInput()
+            self.fields['branch'].disabled = True
             self.fields['branch'].required = False
 
         # Make conditional fields not required initially

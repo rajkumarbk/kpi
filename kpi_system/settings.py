@@ -24,10 +24,20 @@ SECRET_KEY = 'django-insecure-ormb$&2u18mbiv*rx8h!)7khoamj_e@f@cleg=cqj_+ao5ak%*
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = ['192.168.100.254']
+# ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "http://127.0.0.1:8000",
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,6 +51,8 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_select2',
     # 'django_extensions',
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +63,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React vite dev server
 ]
 
 ROOT_URLCONF = 'kpi_system.urls'

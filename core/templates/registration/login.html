@@ -1,204 +1,540 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | Twenty Three</title>
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="icon" type="image/png" href="#" />
+    <!-- Tailwind + Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
+        rel="stylesheet" />
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary: #6C47FF;
-            --primary-light: #8B6BFF;
-            --border: rgba(108, 71, 255, 0.12);
-            --surface: #FFFFFF;
-            --surface-2: #F7F7FC;
-            --text-primary: #1A1535;
-            --text-secondary: #6B6889;
-            --text-muted: #A09EC0;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --shadow-md: 0 8px 32px rgba(108, 71, 255, 0.12);
-        }
-        
         * {
             font-family: 'DM Sans', sans-serif;
             box-sizing: border-box;
         }
-        
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
+
         body {
-            background-color: #F4F3FB;
+            margin: 0;
+            min-height: 100vh;
+            background: #f4f2fc;
+            /* light background with subtle grid + glass reflections */
             background-image:
-                linear-gradient(to right, #e5e7eb 1px, transparent 1px),
-                linear-gradient(to bottom, #e5e7eb 1px, transparent 1px),
-                radial-gradient(ellipse 80% 60% at 10% 10%, rgba(108, 71, 255, 0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 50% at 90% 80%, rgba(0, 201, 167, 0.05) 0%, transparent 60%);
-            background-size: 30px 30px, 30px 30px, auto, auto;
-            color: var(--text-primary);
+                linear-gradient(to right, rgba(108, 71, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(108, 71, 255, 0.04) 1px, transparent 1px),
+                radial-gradient(circle at 15% 25%, rgba(108, 71, 255, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(0, 201, 167, 0.05) 0%, transparent 45%);
+            background-size: 40px 40px, 40px 40px, auto, auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 1.2rem;
+            position: relative;
+            overflow-x: hidden;
         }
-        
-        .glass-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            padding: 2rem;
+
+        /* -------- KPI CHART BACKGROUND (floating stickers, graphs, bars) -------- */
+        .kpi-background {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 420px;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
         }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 60%, #00C9A7 100%);
+
+        .kpi-bg-item {
+            position: absolute;
+            opacity: 0.20;
+            color: #6C47FF;
+            font-size: 2.2rem;
+            filter: drop-shadow(0 4px 8px rgba(108, 71, 255, 0.06));
+            animation: floatKPI 18s infinite alternate ease-in-out;
+        }
+
+        .kpi-bg-item:nth-child(1) {
+            top: 8%;
+            left: 4%;
+            font-size: 3.4rem;
+            opacity: 0.15;
+            animation-duration: 22s;
+        }
+
+        .kpi-bg-item:nth-child(2) {
+            top: 18%;
+            right: 7%;
+            font-size: 2.8rem;
+            opacity: 0.18;
+            animation-duration: 19s;
+            animation-delay: 1s;
+        }
+
+        .kpi-bg-item:nth-child(3) {
+            bottom: 22%;
+            left: 6%;
+            font-size: 3.8rem;
+            opacity: 0.12;
+            animation-duration: 24s;
+            animation-delay: 0.5s;
+        }
+
+        .kpi-bg-item:nth-child(4) {
+            bottom: 12%;
+            right: 5%;
+            font-size: 3rem;
+            opacity: 0.16;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        .kpi-bg-item:nth-child(5) {
+            top: 45%;
+            left: 2%;
+            font-size: 2.6rem;
+            opacity: 0.10;
+            animation-duration: 26s;
+        }
+
+        .kpi-bg-item:nth-child(6) {
+            top: 35%;
+            right: 3%;
+            font-size: 3.2rem;
+            opacity: 0.13;
+            animation-duration: 21s;
+            animation-delay: 0.8s;
+        }
+
+        .kpi-bg-item:nth-child(7) {
+            bottom: 40%;
+            left: 12%;
+            font-size: 2.2rem;
+            opacity: 0.10;
+            animation-duration: 23s;
+        }
+
+        .kpi-bg-item:nth-child(8) {
+            top: 60%;
+            right: 10%;
+            font-size: 2.9rem;
+            opacity: 0.11;
+            animation-duration: 18s;
+        }
+
+        /* glass chart bars (horizontal + vertical) */
+        .glass-chart {
+            position: absolute;
+            background: linear-gradient(180deg, rgba(108, 71, 255, 0.06) 0%, rgba(0, 201, 167, 0.04) 100%);
+            border-radius: 40px 40px 12px 12px;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(108, 71, 255, 0.06);
+            box-shadow: inset 0 0 20px rgba(108, 71, 255, 0.02);
+        }
+
+        .chart-bar-v {
+            width: 16px;
+            height: 60px;
+            background: linear-gradient(0deg, #6C47FF20, #8B6BFF10);
+            border-radius: 40px 40px 8px 8px;
+            position: absolute;
+            transform-origin: bottom;
+            animation: pulseBar 4s infinite alternate ease-in-out;
+        }
+
+        .chart-bar-h {
+            height: 10px;
+            width: 90px;
+            background: linear-gradient(90deg, #6C47FF20, #00C9A715);
+            border-radius: 20px;
+            position: absolute;
+            animation: pulseBarH 5s infinite alternate ease-in-out;
+        }
+
+        @keyframes floatKPI {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+
+            100% {
+                transform: translate(20px, -25px) rotate(8deg) scale(1.04);
+            }
+        }
+
+        @keyframes pulseBar {
+            0% {
+                transform: scaleY(0.6);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scaleY(1);
+                opacity: 0.9;
+            }
+        }
+
+        @keyframes pulseBarH {
+            0% {
+                transform: scaleX(0.5);
+                opacity: 0.4;
+            }
+
+            100% {
+                transform: scaleX(1);
+                opacity: 0.8;
+            }
+        }
+
+        /* custom placed charts */
+        .chart-group-1 {
+            top: 12%;
+            left: 18%;
+        }
+
+        .chart-group-2 {
+            bottom: 20%;
+            right: 14%;
+        }
+
+        .chart-group-3 {
+            top: 50%;
+            left: 6%;
+        }
+
+        .chart-group-4 {
+            bottom: 32%;
+            left: 22%;
+        }
+
+        /* -------- CARD (glass-morph, light) -------- */
+        .kpi-card {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(108, 71, 255, 0.10);
+            border-radius: 36px;
+            box-shadow: 0 24px 56px -16px rgba(108, 71, 255, 0.18), 0 8px 24px -8px rgba(0, 0, 0, 0.02);
+            padding: 2.2rem 2rem 2.4rem;
+            width: 100%;
+            max-width: 400px;
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 32px 64px -18px rgba(108, 71, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* brand icon – glass + KPI */
+        .brand-icon {
+            background: linear-gradient(145deg, #6C47FF, #8B6BFF);
+            box-shadow: 0 10px 24px -8px rgba(108, 71, 255, 0.30);
+            width: 68px;
+            height: 68px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            transition: transform 0.2s;
+        }
+
+        .brand-icon i {
+            font-size: 2rem;
+            color: white;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.05));
+        }
+
+        .brand-icon:hover {
+            transform: scale(1.02);
+        }
+
+        .gradient-brand {
+            background: linear-gradient(135deg, #6C47FF 0%, #8B6BFF 50%, #00C9A7 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
+        /* form fields */
         .field-group {
-            position: relative;
+            margin-bottom: 1.2rem;
         }
-        
+
         .field-label {
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: var(--text-secondary);
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 0.45rem;
+            color: #5b5880;
+            margin-bottom: 0.35rem;
         }
-        
+
         .field-label i {
-            font-size: 0.75rem;
-            color: var(--primary);
-            width: 14px;
+            color: #6C47FF;
+            font-size: 0.7rem;
+            width: 16px;
             text-align: center;
+            opacity: 0.7;
         }
-        
-        .field-icon-wrap {
+
+        .input-wrap {
             position: relative;
         }
-        
-        .field-icon {
+
+        .input-icon {
             position: absolute;
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--primary);
+            color: #6C47FF;
             font-size: 0.9rem;
-            z-index: 10;
+            opacity: 0.5;
             pointer-events: none;
-            opacity: 0.8;
+            transition: opacity 0.2s;
         }
-        
+
         .form-input {
             width: 100%;
-            padding: 0.85rem 1rem 0.85rem 2.75rem;
-            border: 1.5px solid #E4E2F0;
-            border-radius: var(--radius-md);
-            background: var(--surface-2);
-            color: var(--text-primary);
+            padding: 0.8rem 1rem 0.8rem 2.6rem;
+            background: #f0eefa;
+            border: 1.5px solid #e3e0f0;
+            border-radius: 40px;
             font-size: 0.95rem;
-            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            color: #1a1535;
             transition: all 0.2s ease;
             outline: none;
         }
-        
+
         .form-input:focus {
-            border-color: var(--primary);
-            background: var(--surface);
+            border-color: #6C47FF;
+            background: #ffffff;
             box-shadow: 0 0 0 4px rgba(108, 71, 255, 0.08);
         }
-        
+
         .form-input::placeholder {
-            color: var(--text-muted);
+            color: #b0aeca;
+            font-weight: 400;
+            font-size: 0.85rem;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+
+        .btn-kpi {
+            background: linear-gradient(135deg, #6C47FF 0%, #8B6BFF 100%);
             color: white;
-            padding: 0.85rem 1.75rem;
-            border-radius: var(--radius-md);
+            padding: 0.9rem 1.5rem;
+            border-radius: 60px;
             font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.25s ease;
+            font-size: 1rem;
             border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(108, 71, 255, 0.18);
+            width: 100%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            width: 100%;
+            gap: 0.6rem;
+            box-shadow: 0 6px 28px rgba(108, 71, 255, 0.28);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            letter-spacing: 0.3px;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(108, 71, 255, 0.35);
+
+        .btn-kpi:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 40px rgba(108, 71, 255, 0.38);
+        }
+
+        .btn-kpi:active {
+            transform: scale(0.96);
+        }
+
+        .error-box {
+            background: rgba(239, 68, 68, 0.04);
+            border: 1px solid rgba(239, 68, 68, 0.12);
+            border-radius: 40px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.8rem;
+            color: #b91c1c;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.3rem 0 0.8rem;
+        }
+
+        .error-box i {
+            color: #dc2626;
+        }
+
+        .kpi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: rgba(108, 71, 255, 0.05);
+            padding: 0.2rem 1rem 0.2rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #4b3d8a;
+            border: 1px solid rgba(108, 71, 255, 0.06);
+            margin-top: 0.2rem;
+        }
+
+        .kpi-badge i {
+            color: #6C47FF;
+            font-size: 0.6rem;
+        }
+
+        @media (max-width: 480px) {
+            .kpi-card {
+                padding: 1.8rem 1.2rem;
+            }
+        }
+
+        /* animation for card */
+        @keyframes softRise {
+            0% {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .kpi-card {
+            animation: softRise 0.7s ease forwards;
         }
     </style>
 </head>
+
 <body>
-    <div class="glass-card" data-aos="fade-up">
-        <div class="text-center mb-8">
-            <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-chart-line text-white text-2xl"></i>
-            </div>
-            <h2 class="text-2xl font-bold gradient-text">Welcome</h2>
-            <p class="text-gray-500 text-sm mt-1">Sign in to continue</p>
+
+    <!-- ============ BACKGROUND: KPI CHARTS, BARS, GLASS STICKERS ============ -->
+    <div class="kpi-background">
+        <!-- floating glass / KPI icons -->
+        <div class="kpi-bg-item"><i class="fas fa-chart-line"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-chart-bar"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-chart-pie"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-gauge-high"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-car"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-wind"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-chart-simple"></i></div>
+        <div class="kpi-bg-item"><i class="fas fa-arrow-trend-up"></i></div>
+
+        <!-- chart bars (vertical) -->
+        <div class="chart-group-1" style="display: flex; gap: 8px; align-items: flex-end; position: absolute;">
+            <div class="chart-bar-v" style="height: 40px; animation-delay: 0.2s;"></div>
+            <div class="chart-bar-v" style="height: 72px; animation-delay: 0.6s;"></div>
+            <div class="chart-bar-v" style="height: 28px; animation-delay: 0.1s;"></div>
+            <div class="chart-bar-v" style="height: 56px; animation-delay: 0.9s;"></div>
         </div>
-        
-        <form method="post" class="space-y-5">
+
+        <div class="chart-group-2" style="display: flex; gap: 10px; align-items: flex-end; position: absolute;">
+            <div class="chart-bar-v" style="height: 48px; animation-delay: 0.4s;"></div>
+            <div class="chart-bar-v" style="height: 84px; animation-delay: 0.8s;"></div>
+            <div class="chart-bar-v" style="height: 34px; animation-delay: 0.3s;"></div>
+        </div>
+
+        <!-- horizontal bars (like a dashboard) -->
+        <div class="chart-group-3" style="position: absolute; display: flex; flex-direction: column; gap: 8px;">
+            <div class="chart-bar-h" style="width: 110px; animation-delay: 0.1s;"></div>
+            <div class="chart-bar-h" style="width: 70px; animation-delay: 0.8s;"></div>
+            <div class="chart-bar-h" style="width: 140px; animation-delay: 0.4s;"></div>
+        </div>
+
+        <div class="chart-group-4" style="position: absolute; display: flex; flex-direction: column; gap: 6px;">
+            <div class="chart-bar-h" style="width: 80px; animation-delay: 0.5s;"></div>
+            <div class="chart-bar-h" style="width: 130px; animation-delay: 0.2s;"></div>
+        </div>
+
+        <!-- extra glass "sticker" charts (mini pie / gauge) -->
+        <div
+            style="position: absolute; top: 28%; left: 32%; opacity: 0.08; font-size: 4.5rem; color: #6C47FF; transform: rotate(-10deg);">
+            <i class="fas fa-chart-pie"></i>
+        </div>
+        <div
+            style="position: absolute; bottom: 28%; right: 28%; opacity: 0.07; font-size: 4rem; color: #00C9A7; transform: rotate(8deg);">
+            <i class="fas fa-gauge"></i>
+        </div>
+
+        <!-- tiny glass "chip" / auto glass sticker -->
+        <div style="position: absolute; top: 8%; right: 20%; opacity: 0.06; font-size: 3.2rem; color: #8B6BFF;">
+            <i class="fas fa-shield"></i>
+        </div>
+        <div style="position: absolute; bottom: 6%; left: 28%; opacity: 0.05; font-size: 3.8rem; color: #6C47FF;">
+            <i class="fas fa-wrench"></i>
+        </div>
+    </div>
+
+    <!-- ========== LOGIN CARD ========== -->
+    <div class="kpi-card" data-aos="fade-up" data-aos-duration="600" data-aos-easing="ease-out">
+        <div class="text-center">
+            <div class="brand-icon">
+                <i class="fas fa-chart-simple"></i>
+            </div>
+            <h2 class="text-2xl font-bold tracking-tight gradient-brand">
+                Welcome
+            </h2>
+            <p class="text-sm text-[#6b6889] font-medium mt-0.5 flex items-center justify-center gap-1.5 flex-wrap">
+                <span>Sign in to continue</span>
+            </p>
+        </div>
+
+        <form method="post" class="mt-5 space-y-1">
             {% csrf_token %}
-            
+
             <div class="field-group">
-                <div class="field-label"><i class="fas fa-user"></i>Username</div>
-                <div class="field-icon-wrap">
-                    <i class="field-icon fas fa-user-circle"></i>
-                    <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+                <div class="field-label">
+                    <i class="fas fa-user"></i> Username
+                </div>
+                <div class="input-wrap">
+                    <i class="input-icon fas fa-user-circle"></i>
+                    <input type="text" name="username" class="form-input" placeholder="Enter username or email"
+                        required />
                 </div>
             </div>
-            
+
             <div class="field-group">
-                <div class="field-label"><i class="fas fa-lock"></i>Password</div>
-                <div class="field-icon-wrap">
-                    <i class="field-icon fas fa-key"></i>
-                    <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
+                <div class="field-label">
+                    <i class="fas fa-lock"></i> Password
+                </div>
+                <div class="input-wrap">
+                    <i class="input-icon fas fa-key"></i>
+                    <input type="password" name="password" class="form-input" placeholder="••••••••" required />
                 </div>
             </div>
-            
+
             {% if error %}
-            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+            <div class="error-box">
+                <i class="fas fa-circle-exclamation"></i>
+                <span>{{ error }}</span>
             </div>
+            {% else %}
+            <div class="h-9"></div>
             {% endif %}
-            
-            <button type="submit" class="btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Sign In
+
+            <button type="submit" class="btn-kpi mt-0.5">
+                <i class="fas fa-right-to-bracket"></i> Sign in
             </button>
         </form>
     </div>
-    
+
     <script>
-        AOS.init({ duration: 700, once: true });
+        AOS.init({ once: true, offset: 10 });
     </script>
 </body>
+
 </html>

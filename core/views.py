@@ -72,7 +72,7 @@ def create_transaction(request):
         form = TransactionForm(user=request.user)
         if request.user.userprofile.role != 'admin':
             form.fields['branch'].initial = request.user.userprofile.branch
-            form.fields['branch'].widget = forms.HiddenInput()
+            form.fields['branch'].disabled = True
     return render(request, 'core/transaction_form.html', {'form': form})
 
 def load_models(request):
@@ -98,7 +98,7 @@ def transaction_edit(request, pk):
 def transaction_delete(request, pk):
     if request.method == 'POST':
         get_object_or_404(Transaction, pk=pk).delete()
-        return redirect('core:transaction_list')
+        return redirect(request.META.get('HTTP_REFERER') or 'core:transaction_list')
     return redirect('core:transaction_detail', pk=pk)
 
 @login_required
