@@ -7,8 +7,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),  # This includes all URLs from core app
     path('select2/', include('django_select2.urls')),
-    path('api/', include('core.api_urls')),
-    path('api-auth/', include('rest_framework.urls')),
 ]
 
 # Serve media files in development

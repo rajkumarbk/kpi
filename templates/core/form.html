@@ -511,6 +511,51 @@ $(document).ready(function () {
             }
         });
     });
+    // ---------- Corporate Client / Wholesale Company AJAX (branch-based) ----------
+    function reloadBranchDependents(branchId) {
+        var ccSelect = $('#id_corporate_client');
+        var wcSelect = $('#id_wholesale_company');
+
+        if (!branchId) {
+            ccSelect.empty().append('<option value="">Select branch first</option>').trigger('change');
+            wcSelect.empty().append('<option value="">Select branch first</option>').trigger('change');
+            return;
+        }
+
+        $.ajax({
+            url: "{% url 'core:ajax_load_corporate_clients' %}",
+            data: { 'branch': branchId },
+            success: function (data) {
+                ccSelect.empty().append('<option value="">Select corporate client</option>');
+                $.each(data, function (i, c) {
+                    ccSelect.append($('<option>', { value: c.id, text: c.name }));
+                });
+                ccSelect.trigger('change');
+            }
+        });
+
+        $.ajax({
+            url: "{% url 'core:ajax_load_wholesale_companies' %}",
+            data: { 'branch': branchId },
+            success: function (data) {
+                wcSelect.empty().append('<option value="">Select wholesale company</option>');
+                $.each(data, function (i, w) {
+                    wcSelect.append($('<option>', { value: w.id, text: w.name }));
+                });
+                wcSelect.trigger('change');
+            }
+        });
+    }
+
+    $('#id_branch').on('change', function () {
+        reloadBranchDependents($(this).val());
+    });
+
+    // On page load, if branch already has a value (edit mode, or non-admin locked branch), load dependents once
+    // var initialBranchId = $('#id_branch').val();
+    // if (initialBranchId) {
+    //     reloadBranchDependents(initialBranchId);
+    // }
 
     // Disable year until model selected
     $('#id_manufacture_year').prop('disabled', true);

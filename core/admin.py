@@ -44,7 +44,8 @@ class PartsTypeAdmin(admin.ModelAdmin):
 
 @admin.register(CorporateClient)
 class CorporateClientAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name','branch')
+    list_filter = ('branch',)
     search_fields = ('name',)
 
 @admin.register(GovernmentOrganization)
@@ -59,7 +60,8 @@ class WholesaleCustomerTypeAdmin(admin.ModelAdmin):
 
 @admin.register(WholesaleCompany)
 class WholesaleCompanyAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'branch')
+    list_filter = ('branch',)
     search_fields = ('name',)
 
 @admin.register(WholesaleShop)

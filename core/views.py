@@ -73,7 +73,7 @@ def create_transaction(request):
         if request.user.userprofile.role != 'admin':
             form.fields['branch'].initial = request.user.userprofile.branch
             form.fields['branch'].disabled = True
-    return render(request, 'core/transaction_form.html', {'form': form})
+    return render(request, 'core/form.html', {'form': form})
 
 def load_models(request):
     brand_id = request.GET.get('brand')
@@ -92,7 +92,7 @@ def transaction_edit(request, pk):
     if form.is_valid():
         form.save()
         return redirect('core:transaction_detail', pk=pk)
-    return render(request, 'core/transaction_form.html', {'form': form, 'transaction': transaction})
+    return render(request, 'core/form.html', {'form': form, 'transaction': transaction})
 
 @login_required
 def transaction_delete(request, pk):
@@ -160,12 +160,12 @@ def transaction_list(request):
         'reasons': Reason.objects.all(),
         'day_of_week': day_of_week,
     }
-    return render(request, 'core/transaction_list.html', context)
+    return render(request, 'core/list.html', context)
 
 @login_required
 def transaction_detail(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
-    return render(request, 'core/transaction_detail.html', {'transaction': transaction})
+    return render(request, 'core/detail.html', {'transaction': transaction})
 
 @login_required
 @admin_required
@@ -431,7 +431,7 @@ def transaction_pdf(request):
         'company': company,
     }
 
-    html_string = render_to_string('core/transaction_pdf.html', context, request=request)
+    html_string = render_to_string('core/report.html', context, request=request)
     pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
     response = HttpResponse(pdf, content_type='application/pdf')
@@ -439,3 +439,13 @@ def transaction_pdf(request):
     filename = filename.replace(' ', '_')
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+def load_corporate_clients(request):
+    branch_id = request.GET.get('branch_id')
+    qs = CorporateClient.objects.filter(branch_id=branch_id).order_by('name')
+    return JsonResponse(list(qs.values('id', 'name')), safe=False)
+
+def load_wholesale_companies(request):
+    branch_id = request.GET.get('branch_id')
+    qs = WholesaleCompany.objects.filter(branch_id=branch_id).order_by('name')
+    return JsonResponse(list(qs.values('id', 'name')), safe=False)

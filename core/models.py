@@ -63,14 +63,15 @@ class PartsType(models.Model):
         ordering = ['id']
 
 class CorporateClient(models.Model):
-    """Master list of corporate clients (for B2B → Corporate Clients)"""
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=100)
 
     class Meta:
         ordering = ['id']
+        unique_together = ('branch', 'name')
+
+    def __str__(self):
+        return self.name
 
 class GovernmentOrganization(models.Model):
     """Master list of government organizations (for B2G)"""
@@ -90,7 +91,12 @@ class WholesaleCustomerType(models.Model):
         return self.name
 
 class WholesaleCompany(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['id']
+        unique_together = ('branch', 'name')
 
     def __str__(self):
         return self.name

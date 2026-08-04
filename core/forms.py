@@ -42,6 +42,25 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        branch = None
+        if self.user and hasattr(self.user, 'userprofile'):
+            if self.user.userprofile.role != 'admin':
+                branch = self.user.userprofile.branch
+            elif self.data.get('branch'):
+                branch = self.data.get('branch')
+            elif self.instance and self.instance.pk:
+                branch = self.instance.branch
+
+        if branch:
+            self.fields['corporate_client'].queryset = CorporateClient.objects.filter(branch=branch)
+            self.fields['wholesale_company'].queryset = WholesaleCompany.objects.filter(branch=branch)
+        else:
+            if self.user and hasattr(self.user, 'userprofile') and self.user.userprofile.role == 'admin':
+                self.fields['corporate_client'].queryset = CorporateClient.objects.all()
+                self.fields['wholesale_company'].queryset = WholesaleCompany.objects.all()
+            else:
+                self.fields['corporate_client'].queryset = CorporateClient.objects.none()
+                self.fields['wholesale_company'].queryset = WholesaleCompany.objects.none()
 
         # Set initial manufacture year to current year
         # current_year = datetime.datetime.now().year
