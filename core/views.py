@@ -440,12 +440,23 @@ def transaction_pdf(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
+def _is_admin(user):
+    return user.is_authenticated and hasattr(user, 'userprofile') and user.userprofile.role == 'admin'
+
 def load_corporate_clients(request):
     branch_id = request.GET.get('branch_id')
-    qs = CorporateClient.objects.filter(branch_id=branch_id).order_by('name')
-    return JsonResponse(list(qs.values('id', 'name')), safe=False)
+    qs = CorporateClient.objects.all()
+    if branch_id:
+        qs = qs.filter(branch_id=branch_id)
+    elif not _is_admin(request.user):
+        qs = qs.none()
+    return JsonResponse(list(qs.order_by('name').values('id', 'name')), safe=False)
 
 def load_wholesale_companies(request):
     branch_id = request.GET.get('branch_id')
-    qs = WholesaleCompany.objects.filter(branch_id=branch_id).order_by('name')
-    return JsonResponse(list(qs.values('id', 'name')), safe=False)
+    qs = WholesaleCompany.objects.all()
+    if branch_id:
+        qs = qs.filter(branch_id=branch_id)
+    elif not _is_admin(request.user):
+        qs = qs.none()
+    return JsonResponse(list(qs.order_by('name').values('id', 'name')), safe=False)

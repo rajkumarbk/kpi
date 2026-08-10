@@ -524,7 +524,7 @@ $(document).ready(function () {
 
         $.ajax({
             url: "{% url 'core:ajax_load_corporate_clients' %}",
-            data: { 'branch': branchId },
+            data: { 'branch_id': branchId },
             success: function (data) {
                 ccSelect.empty().append('<option value="">Select corporate client</option>');
                 $.each(data, function (i, c) {
@@ -536,7 +536,7 @@ $(document).ready(function () {
 
         $.ajax({
             url: "{% url 'core:ajax_load_wholesale_companies' %}",
-            data: { 'branch': branchId },
+            data: { 'branch_id': branchId },
             success: function (data) {
                 wcSelect.empty().append('<option value="">Select wholesale company</option>');
                 $.each(data, function (i, w) {
