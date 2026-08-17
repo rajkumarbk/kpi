@@ -178,7 +178,7 @@
     </div>
     <div class="stat-card money">
         <div class="label">Total Revenue</div>
-        <div class="value">⃁{{ total_revenue|floatformat:2 }}</div>
+        <div class="value">SAR {{ total_revenue|floatformat:2 }}</div>
     </div>
     <div class="stat-card accent">
         <div class="label">Branch</div>
@@ -204,7 +204,7 @@
                 </div>
                 <div class="stat-card money">
                     <div class="label">Total Revenue</div>
-                    <div class="value">⃁{{ total_revenue|floatformat:2 }}</div>
+                    <div class="value">SAR {{ total_revenue|floatformat:2 }}</div>
                 </div>
                 <div class="stat-card accent">
                     <div class="label">Branch</div>
@@ -249,7 +249,7 @@
             {% endif %}
             <td class="note-cell" dir="auto">{{ t.note|default:"—" }}</td>
             <td>
-                {% if t.price %}<span class="price">⃁{{ t.price }}</span>
+                {% if t.price %}<span class="price">SAR {{ t.price }}</span>
                 {% else %}<span class="muted">—</span>{% endif %}
             </td>
         </tr>

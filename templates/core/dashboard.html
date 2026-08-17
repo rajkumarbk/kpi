@@ -28,7 +28,7 @@
                         </option>
                     {% endfor %}
                 </select>
-                <select name="date_range" class="form-input" style="min-width:140px;padding-left:1rem;" onchange="this.form.submit()">
+                <select name="date_range" class="form-input" style="min-width:155px;padding-left:1rem;" onchange="this.form.submit()">
                     <option value="today" {% if date_range == 'today' %}selected{% endif %}>Today</option>
                     <option value="yesterday" {% if date_range == 'yesterday' %}selected{% endif %}>Yesterday</option>
                     <option value="this_week" {% if date_range == 'this_week' %}selected{% endif %}>This Week</option>
@@ -40,9 +40,19 @@
                 </select>
     
                 <div id="customDateRange" style="display:flex;align-items:center;gap:0.5rem;white-space:nowrap;{% if date_range != 'custom' %}display:none!important;{% endif %}">
-                    <input type="date" name="date_from" value="{{ date_from }}" class="form-input" style="padding-left:1rem;width:140px;">
+                    <input type="date" name="date_from" value="{{ date_from }}" class="form-input" style="padding-left:1rem;width:150px;">
                     <span style="color:#9ca3af;">—</span>
-                    <input type="date" name="date_to" value="{{ date_to }}" class="form-input" style="padding-left:1rem;width:140px;">
+                    <input type="date" name="date_to" value="{{ date_to }}" class="form-input" style="padding-left:1rem;width:150px;">
+                    <select name="day_filter" class="form-input" style="padding-left:1rem;width:150px;">
+                        <option value="" {% if not day_filter %}selected{% endif %}>All Days</option>
+                        <option value="0" {% if day_filter == '0' %}selected{% endif %}>Sunday</option>
+                        <option value="1" {% if day_filter == '1' %}selected{% endif %}>Monday</option>
+                        <option value="2" {% if day_filter == '2' %}selected{% endif %}>Tuesday</option>
+                        <option value="3" {% if day_filter == '3' %}selected{% endif %}>Wednesday</option>
+                        <option value="4" {% if day_filter == '4' %}selected{% endif %}>Thursday</option>
+                        <option value="5" {% if day_filter == '5' %}selected{% endif %}>Friday</option>
+                        <option value="6" {% if day_filter == '6' %}selected{% endif %}>Saturday</option>
+                    </select>
                     <button type="submit" class="btn-primary" style="padding:0.6rem 1.2rem;">Apply</button>
                 </div>
                 <a href="?" 
