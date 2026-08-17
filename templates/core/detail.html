@@ -115,7 +115,7 @@
         {% if transaction.price %}
         <div class="outcome-banner-right" style="text-align:right;">
             <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Transaction Value</div>
-            <div style="font-size:1.6rem;font-weight:700;color:#0a6654;">⃁{{ transaction.price }}</div>
+            <div style="font-size:1.6rem;font-weight:700;color:#0a6654;">SAR {{ transaction.price }}</div>
         </div>
         {% endif %}
     </div>
@@ -198,7 +198,7 @@
     {% if transaction.expected_price %}
         <div style="margin-top:1rem;">
             <div style="font-size:0.78rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Expected Price</div>
-            <p style="background:var(--surface-2);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.875rem;color:var(--text-secondary);margin:0;">{{ transaction.expected_price }} ⃁</p>
+            <p style="background:var(--surface-2);padding:0.75rem 1rem;border-radius:var(--radius-sm);font-size:0.875rem;color:var(--text-secondary);margin:0;">{{ transaction.expected_price }} SAR </p>
         </div>
     {% endif %}
     

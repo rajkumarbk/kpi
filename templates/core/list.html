@@ -301,9 +301,11 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                     <button type="submit" class="btn-primary">
                         <i class="fas fa-filter"></i>Filter
                     </button>
+                    {% if request.user.userprofile.role == 'admin' %}
                     <a href="#" id="print-pdf-btn" class="btn-secondary" style="display:inline-flex;align-items:center;gap:0.4rem;">
                         <i class="fas fa-file-pdf"></i>Print
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </form>
@@ -326,7 +328,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
                     <div class="stat-label">Total Revenue</div>
-                    <div class="stat-value" style="color:#0a6654;">⃁{{ total_revenue|floatformat:2 }}</div>
+                    <div class="stat-value" style="color:#0a6654;">SAR {{ total_revenue|floatformat:2 }}</div>
                 </div>
                 <div class="stat-icon" style="background:rgba(0,201,167,0.1);">
                     <i class="fas fa-money-bill-wave" style="color:#00C9A7;"></i>
@@ -348,7 +350,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
                 <div>
                     <div class="stat-label">Avg. Transaction</div>
-                    <div class="stat-value" style="color:var(--primary);">⃁{{ avg_transaction|floatformat:2 }}</div>
+                    <div class="stat-value" style="color:var(--primary);">SAR {{ avg_transaction|floatformat:2 }}</div>
                 </div>
                 <div class="stat-icon" style="background:var(--primary-subtle);">
                     <i class="fas fa-calculator" style="color:var(--primary);"></i>
@@ -356,6 +358,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             </div>
         </div>
     </div>
+    {% if request.user.userprofile.role == 'admin' %}
     <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
         <button type="button" class="btn-secondary tab-btn active" data-tab="detail-view">
             <i class="fas fa-list"></i> Transactions
@@ -364,6 +367,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
             <i class="fas fa-calendar-days"></i> Daily Summary
         </button>
     </div>
+    {% endif %}
     <!-- Table -->
     <div id="detail-view" class="glass-card" style="padding:0 !important; overflow:hidden;">
         <div class="table-wrap">
@@ -410,7 +414,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                         </td>
                         <td>
                             {% if transaction.price %}
-                                <span class="price-val">⃁{{ transaction.price }}</span>
+                                <span class="price-val">SAR {{ transaction.price }}</span>
                             {% else %}
                                 <span class="price-nil">—</span>
                             {% endif %}
@@ -500,7 +504,7 @@ tbody td.id-cell { font-family: 'DM Mono', monospace; font-size: 0.78rem; color:
                     <td><span class="badge badge-success">{{ row.success_count }}</span></td>
                     <td><span class="badge badge-fail">{{ row.fail_count }}</span></td>
                     <td><span class="badge badge-info">{{ row.success_count|add:row.fail_count }}</span></td>
-                    <td><span class="price-val">⃁{{ row.day_revenue|default:0|floatformat:2 }}</span></td>
+                    <td><span class="price-val">SAR {{ row.day_revenue|default:0|floatformat:2 }}</span></td>
                 </tr>
                 {% empty %}
                 <tr>
