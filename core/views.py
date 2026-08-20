@@ -1,4 +1,3 @@
-from django.core.checks import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import TransactionForm
 from .models import (
@@ -9,10 +8,9 @@ from .models import (
     Reason,
     WholesaleCompany,
     CorporateClient,
-    GovernmentOrganization,
 )
 from django.http import JsonResponse
-from django.db.models import Count, Q, Sum, Avg
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 import json
@@ -20,7 +18,6 @@ from django.core.paginator import Paginator
 from datetime import timedelta, datetime
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 
@@ -83,6 +80,7 @@ def create_transaction(request):
             if request.user.userprofile.role != "admin":
                 transaction.branch = request.user.userprofile.branch
             transaction.save()
+            messages.success(request, "Transaction saved successfully.")
             return redirect("core:transaction_list")
     else:
         form = TransactionForm(user=request.user)
@@ -109,6 +107,7 @@ def transaction_edit(request, pk):
     )
     if form.is_valid():
         form.save()
+        messages.success(request, "Transaction updated successfully.")
         return redirect("core:transaction_detail", pk=pk)
     return render(request, "core/form.html", {"form": form, "transaction": transaction})
 
