@@ -1,3 +1,4 @@
+from django.core.checks import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import TransactionForm
 from .models import (
@@ -20,7 +21,7 @@ from datetime import timedelta, datetime
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
-
+from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 
 
@@ -116,7 +117,8 @@ def transaction_edit(request, pk):
 def transaction_delete(request, pk):
     if request.method == "POST":
         get_object_or_404(Transaction, pk=pk).delete()
-        return redirect(request.META.get("HTTP_REFERER") or "core:transaction_list")
+        messages.success(request, "Transaction deleted.")
+        return redirect("core:transaction_list")
     return redirect("core:transaction_detail", pk=pk)
 
 
