@@ -1,0 +1,143 @@
+    @page {
+        size: A4 Portrait;
+        margin: 0.3cm 0.5cm 1.2cm 0.5cm;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-size: 10.5px;
+        color: #1e1b2e;
+        margin: 0;
+        width: 100%;
+    }
+
+    /* ---------- Header ---------- */
+    .brand-header {
+        text-align: center;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #8a8398;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    .brand-header img {
+        height: 70px;
+        object-fit: contain;
+        margin-bottom: 5px;
+        margin-top: 0px;
+    }
+    .report-title h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #464646;
+        letter-spacing: -0.3px;
+    }
+    .report-title span {
+        font-size: 10px;
+        color: #8a8398;
+    }
+
+    /* ---------- Summary stat cards ---------- */
+    .stats-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+    .stat-card {
+        flex: 1;
+        background: #f7f5ff;
+        border: 1px solid #e4ddff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        break-inside: avoid;
+    }
+    .stat-card .label {
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #8a8398;
+        font-weight: 700;
+        margin-bottom: 3px;
+    }
+    .stat-card .value {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1e1b2e;
+    }
+    .stat-card.accent .value { color: #6C47FF; }
+    .stat-card.money .value { color: #0a6654; }
+
+    /* ---------- Filter chips ---------- */
+    .filters-row {
+        margin-bottom: 14px;
+        font-size: 9px;
+        color: #2f2f2f;
+    }
+    .filters-row .chip {
+        display: inline-block;
+        background: #ffffff;
+        border: 1px solid #ded7f0;
+        border-radius: 12px;
+        padding: 3px 10px;
+        margin-right: 6px;
+    }
+    .filters-row .chip strong { color: #1e1b2e; }
+
+    /* ---------- Table ---------- */
+    /* table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 6px 8px; } */
+
+    table { width: 100%; border-collapse: collapse; border: 1px solid #ddd; }
+    th, td { padding: 6px 8px; border: 1px solid #ddd; text-align:center; }
+
+    
+
+    table.data {
+        table-layout: auto;
+        border-collapse: collapse;
+    }
+    table.data thead th {
+        background-color: #6C47FF;
+        color: #ffffff;
+        padding: 7px 8px;
+        text-align: center;
+        font-size: 8.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    table.data thead th:first-child { border-radius: 5px 0 0 0; }
+    table.data thead th:last-child { border-radius: 0 5px 0 0; }
+
+    table.data tbody tr.even { background-color: #f7f5ff; }
+    table.data tbody tr.odd  { background-color: #ffffff; }
+    table.data tbody td {
+        padding: 6px 8px;
+        border-bottom: 1px solid #ece7f7;
+        font-size: 9.5px;
+        color: #333;
+        vertical-align: top;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 8.5px;
+        font-weight: 700;
+    }
+    .badge.success { background: #e3f6ef; color: #0a6654; }
+    .badge.fail    { background: #fbe9e9; color: #7a1c24; }
+
+    .price   { color: #0a6654; font-weight: 700; }
+    .note-cell { white-space: normal; word-break: break-word; max-width: 150px; color: #5c5568; }
+    .muted { color: #b3aec2; }
+
+    .footer {
+        margin-top: 14px;
+        font-size: 8.5px;
+        color: #2f2f2f;
+        text-align: right;
+        border-top: 1px solid #ece7f7;
+        padding-top: 6px;
+    }

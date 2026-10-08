@@ -20,6 +20,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.paginator import Paginator
+
+
+def paginate(request, qs, param="page", per_page=50):
+    return Paginator(qs, per_page).get_page(request.GET.get(param))
 
 
 def check_admin(user):
@@ -181,10 +186,8 @@ def transaction_list(request):
     fail_rate = round((fail_count / total_count * 100) if total_count > 0 else 0, 1)
     avg_transaction = total_revenue / success_count if success_count > 0 else 0
 
-    # Pagination
-    paginator = Paginator(transactions, 50)
-    page = request.GET.get("page")
-    transactions = paginator.get_page(page)
+    transactions = paginate(request, transactions, "page")
+    daily_summary = paginate(request, daily_summary, "spage")
 
     context = {
         "transactions": transactions,

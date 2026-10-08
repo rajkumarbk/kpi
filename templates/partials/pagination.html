@@ -1,0 +1,14 @@
+{% if page_obj.has_other_pages %}
+<div class="pagination-bar">
+    <span>Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} results</span>
+    <div class="page-btns">
+        {% if page_obj.has_previous %}
+            <a href="?{{ param }}={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != param %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+        {% endif %}
+        <span class="page-btn active">{{ page_obj.number }}</span>
+        {% if page_obj.has_next %}
+            <a href="?{{ param }}={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != param %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
